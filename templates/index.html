@@ -189,23 +189,6 @@
 		});
 	});
 
-{#	$(document).ready(function(){#}
-{##}
-{#    var idd = Number($('#'+$(this).parent().attr('id')+' .num').text());#}
-{#	  var ppoint = $('#'+$(this).parent().attr('id')+' .point').text().replace(/[├─│]/gim,'');#}
-{##}
-{#		var a = "<a href=\"#\" class=\"glyphicon glyphicon-plus-sign\" title=\"Добавить подразделы\" data-toggle=\"modal\" data-target=\"#ModalAddSubSection\" onclick=\"addSP(Number($('#'+$(this).parent().attr('id')+' .num').text()),$('#'+$(this).parent().attr('id')+' .point').text().replace(/[├─│]/gim,''));\"></a> <a href=\"#\" class=\"glyphicon glyphicon-edit btn btn-default btn-xs\"></a> <a href=\"#\" class=\"glyphicon glyphicon-move btn btn-default btn-xs\"></a> <a href=\"#\" class=\"glyphicon glyphicon-transfer btn btn-default btn-xs\"></a> <a href=\"#\" class=\"glyphicon glyphicon-trash btn btn-default btn-xs\" onclick=\"alert(Number($('#'+$(this).parent().attr('id')+' .num').text()));\"></a>";#}
-{##}
-{#    $("pre span").mouseover(function(){#}
-{#	    $('#'+$(this).attr('id')+' .tools').html(a);#}
-{#	    // $($(this).attr('id')+' .tools').text("mouse over");#}
-{#    }).mouseout(function(){#}
-{#      $('#'+$(this).attr('id')+' .tools').text("");#}
-{#    });;#}
-{##}
-{##}
-{##}
-{#  });#}
 </script>
 
 <body>
@@ -219,19 +202,21 @@
 <div class="row col-md-12">
 	<div class="col-md-11">
 		<h5>
-			<div style="float: left">Товарных разделов: {{ NUM_T }} 	├┼┤ Разделов ОКВЭД: 0 {# ├┼┼┼┼┼┼┼┤ MAKE_LIGHT #}</div>
+			<div style="float: left">Товарных разделов: {{ NUM_T }} ├┼┤ Разделов ОКВЭД: 0 {# ├┼┼┼┼┼┼┼┤ MAKE_LIGHT #}</div>
 			<div style="float: right">
-				<a href="#" class="btn btn-default btn-xs"><b class="glyphicon glyphicon-sort-by-attributes"></b> Проверить и переиндексировать</a>
-				<a href="#" data-toggle="modal" data-target="#ModalAddToRoot" class="btn btn-default btn-xs"><b class="glyphicon glyphicon-plus-sign"></b> Добавить в корень</a>
+				<a href="#" class="btn btn-default btn-xs"><b class="glyphicon glyphicon-sort-by-attributes"></b> Проверить и
+					переиндексировать</a>
+				<a href="#" data-toggle="modal" data-target="#ModalAddToRoot" class="btn btn-default btn-xs"><b
+								class="glyphicon glyphicon-plus-sign"></b> Добавить в корень</a>
 			</div>
 		</h5>
 	</div>
 
 	<div class="col-md-1 сcol-md-offset-1 notes">
-    <h5>Служебное:</h5>
+		<h5>Служебное:</h5>
 		<p>
-			<nobr><i class="glyphicon glyphicon-eye-open"></i> — {{ NV }}</nobr><br />
-			<nobr><i class="glyphicon glyphicon-fire"></i> — {{ TAU|floatformat:"-5" }} cек.</nobr><br />
+			<nobr><i class="glyphicon glyphicon-eye-open"></i> — {{ NV }}</nobr><br/>
+			<nobr><i class="glyphicon glyphicon-fire"></i> — {{ TAU|floatformat:"-5" }} cек.</nobr><br/>
 			<!-- ■ Ταυ: <br / -->
 		</p>
 	</div>
@@ -239,12 +224,11 @@
 	<div class="col-md-11">
 		<div style="float: left;margin: -30px 0 3px;">
 			{% for lev in LEV_NEST %}
-			  <div style="border: solid 1px; display: inline-block;padding: 2px;margin: 1px 4px">
-				  <input type="checkbox" id="CH{{ lev }}"
-                 onchange="if ($(this).is(':checked')) offL({{ lev }}); if ($(this).is(':not(:checked)')) onnL({{ lev }});" />
-
-				  <b class="glyphicon glyphicon-eye-open"></b> L{{ lev }}</div> {% endfor %}
-    </div>
+				<div style="border: solid 1px; display: inline-block;padding: 2px;margin: 1px 4px">
+					<input type="checkbox" id="CH{{ lev }}"
+					       onchange="if ($(this).is(':checked')) offL({{ lev }}); if ($(this).is(':not(:checked)')) onnL({{ lev }});"/>
+					<b class="glyphicon glyphicon-eye-open"></b> L{{ lev }} </div> {% endfor %}
+		</div>
 	</div>
 
 	<div class="col-md-11 tree">
@@ -264,75 +248,74 @@ end	</pre>
 
 <!-- Modal Добавить прямо в корень дерева -->
 <div class="modal fade" id="ModalAddToRoot" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span></button>
-        <h4 class="modal-title">Добавить категорию в корень</h4>
-      </div>
-      <div class="modal-body">
-	      <FORm target="worker" method="post" action="\add_to_root">
-		      {% csrf_token %}
-
-		      <div class="input-group">
-			      <div class="radio">
-						  <label>
-						    <input type="radio" name="SectionType" value="1" checked>
-						    Товары
-						  </label>
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true" class="glyphicon glyphicon-remove"></span>
+				</button>
+				<h4 class="modal-title">Добавить категорию в корень</h4>
+			</div>
+			<div class="modal-body">
+				<FORm target="worker" method="post" action="\add_to_root">
+					{% csrf_token %}
+					<div class="input-group">
+						<div class="radio">
+							<label>
+								<input type="radio" name="SectionType" value="1" checked>
+								Товары
+							</label>
 						</div>
 						<div class="radio">
-						  <label>
-						    <input type="radio" name="SectionType" id="50" value="50">
-						    ОКВЭД
-						  </label>
+							<label>
+								<input type="radio" name="SectionType" id="50" value="50">
+								ОКВЭД
+							</label>
 						</div>
-          </div>
-
+					</div>
 					<div class="input-group">
 						<span class="input-group-addon"><i class="glyphicon glyphicon-leaf"></i></span>
 						<input type="text" class="form-control" name="category_to_root" placeholder="…………">
 						<span class="input-group-btn">
-              <button class="btn btn-default" type="submit" onclick="open_worker();" >Записать прямо в корень!</button>
+              <button class="btn btn-default" type="submit" onclick="open_worker();">Записать прямо в корень!</button>
             </span>
 					</div>
-
-	      </FORm>
-	      <p>&nbsp;</p>
-      </div>
-    </div>
-  </div>
+				</FORm>
+				<p>&nbsp;</p>
+			</div>
+		</div>
+	</div>
 </div>
 
 <!-- Modal Добавить подразделы -->
 <div class="modal fade" id="ModalAddSubSection" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span></button>
-        <h4 class="modal-title">Добавить подкатегории к «<span id="header-ModalAddSubSection"></span>»</h4>
-      </div>
-      <div class="modal-body">
-	      <FORm target="worker" method="post" action="\add_subpart">
-		      {% csrf_token %}
-		      <input type='hidden' name='AddSubSectionToID' id='AddSubSectionToID' />
-
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true" class="glyphicon glyphicon-remove"></span>
+				</button>
+				<h4 class="modal-title">Добавить подкатегории к «<span id="header-ModalAddSubSection"></span>»</h4>
+			</div>
+			<div class="modal-body">
+				<FORm target="worker" method="post" action="\add_subpart">
+					{% csrf_token %}
+					<input type='hidden' name='AddSubSectionToID' id='AddSubSectionToID'/>
 					<div class="input-group form-group">
-						<span class="input-group-addon"><i class="glyphicon glyphicon-leaf"></i><br />
+						<span class="input-group-addon"><i class="glyphicon glyphicon-leaf"></i><br/>
 							<i class="glyphicon glyphicon-option-vertical"></i>
 						</span>
-						<textarea type="text" class="form-control" id="list_of_subparts" name="list_of_subparts" rows="7" placeholder="Одна подкатегория в строке. Двойные пробелы игнорируются."></textarea>
+						<textarea type="text" class="form-control" id="list_of_subparts" name="list_of_subparts" rows="7"
+						          placeholder="Одна подкатегория в строке. Двойные пробелы игнорируются."></textarea>
 					</div>
-		      <div class="input-group form-group">
-            <button class="btn btn-default" type="submit" onclick="open_worker();" >Записать подкатегории</button>
-			    </div>
-
-
-	      </FORm>
-	      <p>&nbsp;</p>
-      </div>
-    </div>
-  </div>
+					<div class="input-group form-group">
+						<button class="btn btn-default" type="submit" onclick="open_worker();">Записать подкатегории</button>
+					</div>
+				</FORm>
+				<p>&nbsp;</p>
+			</div>
+		</div>
+	</div>
 </div>
 
 <!-- Modal Удалить раздел и его подразделы -->
@@ -363,117 +346,132 @@ end	</pre>
 
 <!-- Modal Изменить название раздела или подрездела -->
 <div class="modal fade" id="ModalEdtSection" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span></button>
-        <h4 class="modal-title">Изменить название раздела «<span id="header-ModalEdtSection"></span>»</h4>
-      </div>
-      <div class="modal-body">
-	      <FORm target="worker" method="post" action="\edt_part">
-		      {% csrf_token %}
-		      <input type='hidden' name='EdtSectionID' id='EdtSectionID' />
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true" class="glyphicon glyphicon-remove"></span>
+				</button>
+				<h4 class="modal-title">Изменить название раздела «<span id="header-ModalEdtSection"></span>»</h4>
+			</div>
+			<div class="modal-body">
+				<FORm target="worker" method="post" action="\edt_part">
+					{% csrf_token %}
+					<input type='hidden' name='EdtSectionID' id='EdtSectionID'/>
 					<div class="input-group">
 						<span class="input-group-addon"><i class="glyphicon glyphicon-edit"></i></span>
 						<input type="text" class="form-control" name="new_name_of_parts" id="new_name_of_parts" value="---">
 						<span class="input-group-btn">
-              <button class="btn btn-default" type="submit" onclick="open_worker();" >Переименовать!</button>
+              <button class="btn btn-default" type="submit" onclick="open_worker();">Переименовать!</button>
             </span>
 					</div>
-	      </FORm>
-	      <p>&nbsp;</p>
-      </div>
-    </div>
-  </div>
+				</FORm>
+				<p>&nbsp;</p>
+			</div>
+		</div>
+	</div>
 </div>
 
 <!-- Modal сделать раздел Алиасом другого раздела или подрездела -->
 <div class="modal fade" id="ModalAlias" tabindex="-2" role="document" aria-hidden="false">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span></button>
-        <h4 class="modal-title">Работа с Alias/AKA раздела «<span id="header-ModalAliasSection"></span>»</h4>
-      </div>
-      <div class="modal-body">
-	      <FORm target="worker" method="post" action="\edt_make_alias">
-		      {% csrf_token %}
-		      <input type='hidden' name='AliasSectionID' id='AliasSectionID' />
-		      <!--- Работаем с ТАБами --->
-		      <ul class="nav nav-tabs" role="tablist">
-				    <li role="presentation" id="addAliasActivator"><a href="#addAlias" aria-controls="addAlias" role="tab" data-toggle="tab">Назначить Alias</a></li>
-				    <li role="presentation" id="removeAliasActivator"><a href="#removeAlias" aria-controls="removeAlias" role="tab" data-toggle="tab">Снять Alias</a></li>
-				  </ul>
-		      <!--- Сами ТАБ-ы--->
-		      <div class="tab-content">
-				    <!--- Таб добавления алиаса --->
-			      <div role="tabpanel" class="tab-pane" id="addAlias">
-					    <div class="form-group">
-							  <label class="control-label" for="alias_name_of_parts">Назначить как Alias для:</label>
-							  <div class="input-group">
-							    <span class="input-group-addon"><i class="glyphicon glyphicon-transfer"></i></span>
-							    <input type="text" class="form-control" name="alias_name_of_parts" id="alias_name_of_parts" placeholder="Уажите ID или название" autocomplete="on">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true" class="glyphicon glyphicon-remove"></span>
+				</button>
+				<h4 class="modal-title">Работа с Alias/AKA раздела «<span id="header-ModalAliasSection"></span>»</h4>
+			</div>
+			<div class="modal-body">
+				<FORm target="worker" method="post" action="\edt_make_alias">
+					{% csrf_token %}
+					<input type='hidden' name='AliasSectionID' id='AliasSectionID'/>
+					<!--- Работаем с ТАБами --->
+					<ul class="nav nav-tabs" role="tablist">
+						<li role="presentation" id="addAliasActivator">
+							<a href="#addAlias" aria-controls="addAlias" role="tab" data-toggle="tab">Назначить Alias</a>
+						</li>
+						<li role="presentation" id="removeAliasActivator">
+							<a href="#removeAlias" aria-controls="removeAlias" role="tab" data-toggle="tab">Снять Alias</a>
+						</li>
+					</ul>
+					<!--- Сами ТАБ-ы--->
+					<div class="tab-content">
+						<!--- Таб добавления алиаса --->
+						<div role="tabpanel" class="tab-pane" id="addAlias">
+							<div class="form-group">
+								<label class="control-label" for="alias_name_of_parts">Назначить как Alias для:</label>
+								<div class="input-group">
+									<span class="input-group-addon"><i class="glyphicon glyphicon-transfer"></i></span>
+									<input type="text" class="form-control" name="alias_name_of_parts" id="alias_name_of_parts"
+									       placeholder="Уажите ID или название" autocomplete="on">
 								  <span class="input-group-btn">
-		                <button class="btn btn-default" type="submit" onclick="open_worker();" >Назначить как Alias!</button>
+		                <button class="btn btn-default" type="submit" onclick="open_worker();">Назначить как Alias!</button>
 		              </span>
-							  </div>
-						    <div class="input-group">
-			            <p>&nbsp;</p>
-							    <p>Что такое Alias? Alias -- это ссылка на базовый Aka-раздел. Если какой либо раздел имеет Alias, то в нем оотображается не только все его содержимое, но и содержимое Aka-раздела (того раздела, ID которого указан как Alias). Все подразделы Aka-раздела тоже будут отображаться как подразделы раздела с Alias. Содержимое и подразделы раздела с Alias в бвзовом Aka-разделе не отображаются.</p>
-		            </div>
+								</div>
+								<div class="input-group">
+									<p>&nbsp;</p>
+
+									<p>Что такое Alias? Alias -- это ссылка на базовый Aka-раздел. Если какой либо раздел имеет Alias, то
+										в нем оотображается не только все его содержимое, но и содержимое Aka-раздела (того раздела, ID
+										которого указан как Alias). Все подразделы Aka-раздела тоже будут отображаться как подразделы
+										раздела с Alias. Содержимое и подразделы раздела с Alias в бвзовом Aka-разделе не отображаются.</p>
+								</div>
 							</div>
-				    </div>
-			      <!--- Таб снятия алиаса --->
-				    <div role="tabpanel" class="tab-pane" id="removeAlias">
-					    <div class="form-group">
-						    <p>&nbsp;</p>
-							  <label class="control-label" for="alias_good_bay">
-						      <input type="checkbox" value="del_alias" id="command_remove_alias" name="command_remove_alias">
-						      Я правда-правда хочу убрать Алиас отсюда!
+						</div>
+						<!--- Таб снятия алиаса --->
+						<div role="tabpanel" class="tab-pane" id="removeAlias">
+							<div class="form-group">
+								<p>&nbsp;</p>
+								<label class="control-label" for="alias_good_bay">
+									<input type="checkbox" value="del_alias" id="command_remove_alias" name="command_remove_alias">
+									Я правда-правда хочу убрать Алиас отсюда!
 								</label>
-					    </div>
-					    <div class="form-group">
-						      <button class="btn btn-warning" type="submit" onclick="open_worker();" >Удалить Alias!</button>
 							</div>
-				    </div>
-				  </div>
-	      </FORm>
-      </div>
-    </div>
-  </div>
+							<div class="form-group">
+								<button class="btn btn-warning" type="submit" onclick="open_worker();">Удалить Alias!</button>
+							</div>
+						</div>
+					</div>
+				</FORm>
+			</div>
+		</div>
+	</div>
 </div>
 
-<!-- Modal сделать раздел Алиасом другого раздела или подрездела -->
+<!-- Modal пемещение разделов вместе с подрезделами -->
 <div class="modal fade" id="ModalMoveSection" tabindex="-2" role="document" aria-hidden="false">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span></button>
-        <h4 class="modal-title">Переместить в раздел «<span id="header-ModalMoveSection"></span>» что-то</h4>
-      </div>
-      <div class="modal-body">
-	      <FORm target="worker" method="post" action="\move_subpart">
-		      {% csrf_token %}
-		      <input type='hidden' name='AcceptorMoveSectionID' id='AcceptorMoveSectionID' />
-			    <div class="form-group">
-					  <label class="control-label" for="movable_name_of_parts">Переместить сюда раздел с подразделами:</label>
-					  <div class="input-group">
-					    <span class="input-group-addon"><i class="glyphicon glyphicon-transfer"></i></span>
-					    <input type="text" class="form-control" name="movable_name_of_parts" id="movable_name_of_parts" placeholder="Уажите ID или название" autocomplete="on">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true" class="glyphicon glyphicon-remove"></span>
+				</button>
+				<h4 class="modal-title">Переместить в раздел «<span id="header-ModalMoveSection"></span>» что-то</h4>
+			</div>
+			<div class="modal-body">
+				<FORm target="worker" method="post" action="\move_subpart">
+					{% csrf_token %}
+					<input type='hidden' name='AcceptorMoveSectionID' id='AcceptorMoveSectionID'/>
+					<div class="form-group">
+						<label class="control-label" for="movable_name_of_parts">Переместить сюда раздел с подразделами:</label>
+						<div class="input-group">
+							<span class="input-group-addon"><i class="glyphicon glyphicon-transfer"></i></span>
+							<input type="text" class="form-control" name="movable_name_of_parts" id="movable_name_of_parts"
+							       placeholder="Уажите ID или название" autocomplete="on">
 						  <span class="input-group-btn">
-                <button class="btn btn-default" type="submit" onclick="open_worker();" >Переноси смело!</button>
+                <button class="btn btn-default" type="submit" onclick="open_worker();">Переноси смело!</button>
               </span>
-					  </div>
-				    <div class="input-group">
-	            <p>&nbsp;</p>
-					    <p>Указанный раздел вместе с подразделами будет перенесен сюда.</p>
-            </div>
+						</div>
+						<div class="input-group">
+							<p>&nbsp;<br />
+							  Указанный раздел вместе с подразделами будет перенесен сюда.</p>
+						</div>
 					</div>
-
-	      </FORm>
-      </div>
-    </div>
-  </div>
+				</FORm>
+			</div>
+		</div>
+	</div>
 </div>
 
 
