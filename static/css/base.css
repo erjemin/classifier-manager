@@ -1,0 +1,70 @@
+/*!
+ * TreeClassify v0.1β
+ * Copyright 2016, Sergei Erjemin
+ *
+ * Даннаая cтилевая талицв предполаает наличи прееварительно подключенного
+ * Bootstrap v3.2.0 и является его расширением
+ */
+/*! normalize.css v3.0.1 | MIT License | git.io/normalize */
+.notes {
+  font-size: x-small;
+	background-color: snow;
+}
+.notes .glyphicon-fire      { color: crimson; }
+.notes .glyphicon-eye-open  { color: forestgreen; }
+
+h5 {border-top: double 5px gray; padding-top: 10px;}
+
+.tree {
+}
+.L0{	background-color: #F8ffff; }
+.L1{	background-color: #FFf8fF; }
+.L2{	background-color: #EfEfE8; }
+.L3{	background-color: #F8FFF8; }
+.L4{	background-color: #FFF8D8; }
+.L5{	background-color: #F8F8FF; }
+.L6{	background-color: #F8F8F8; }
+.L7{	background-color: #F0ffff; }
+.L8{	background-color: #FFf0fF; }
+.L9{	background-color: #EfEfE0; }
+.L10{	background-color: #F0FFF0; }
+.L11{	background-color: #FFF0D0; }
+.L12{	background-color: #F0F0FF; }
+.L13{	background-color: #F0F0F0; }
+.string:hover {
+	background:     darkcyan !important;
+	color: white;
+	border-top:     gray dotted 1px;
+	border-bottom:  gray dotted 1px;
+	transition:     0.1s; }
+.string:not(:hover)  { transition: 2s; }
+
+pre .glyphicon-trash, pre .glyphicon-transfer, pre .glyphicon-move, pre .glyphicon-edit, pre .glyphicon-plus-sign {
+	margin: 1px 0;
+	top:-2px;
+}
+pre .glyphicon-info-sign {
+	top: 2px;
+}
+.alia {
+	background: orange;
+}
+
+.ui-autocomplete {
+  z-index: 1000000 !important;
+	border-radius:0 0 4px 4px;
+	box-shadow: 0 0 10px rgba(0,0,0,0.8);
+}
+.ui-menu-item {
+	border-radius:4px;
+}
+.ui-menu-item:hover {
+	transition: 0.1s  !important;
+}
+.ui-menu-item:not(:hover) { transition:1s !important; }
+.draggable {
+	z-index: 100000 !important;
+	font-family: monospace !important;
+	border: none !important;
+
+}

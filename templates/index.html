@@ -1,0 +1,482 @@
+<!DOCTYPE html>{% load staticfiles %}
+<html lang="ru">
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="content-language" content="ru" />
+	<meta http-equiv="Date" content="{% block Date4Meta %}{% now "c" %}{% endblock %}" />
+	<meta http-equiv="Last-Modified" content="{% block Last4Meta %}{% now "c" %}{% endblock %}" />
+	<meta http-equiv="Expires" content="{% block Expires4Meta %}{% now "c" %}{% endblock %}" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="description" content="{% block Description %}{% endblock %}" />
+	<meta name="keywords" content="{% block Keywords %}{% endblock %}" />
+	<meta name="author" content="Sergi Erjemin{% block Author4Meta %}{% endblock %}" />
+	<meta name="copyright" lang="ru" content="Sergei Erjemin{% block CopyrightAuthor4Meta %}{% endblock %}" />
+	<meta name="robots" content="index,follow" />
+	<meta name="document-state" content="{{ META_DOCUMENT_STATE|default:"Dynamic" }}" />
+	<meta name="generator" content="TreeClassify 0.1β by Python/Django" />
+	<title>Тут растут деревья</title>
+</head>
+<link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+<!--link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" / -->
+<link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css" />
+
+<link href="{% static 'css/base.css' %}" rel="stylesheet" type="text/css"  />
+{% block Top_CSS1 %}{% endblock %}{% block Top_CSS2 %}{% endblock %}{% block Top_CSS3 %}{% endblock %}
+<script src="//code.jquery.com/jquery-2.1.1.min.js" type="text/javascript"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="//code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script>
+{% block Top_JS1 %}{% endblock %}{% block Top_JS2 %}{% endblock %}{% block Top_JS3 %}{% endblock %}
+<script type="text/javascript">
+	function open_worker() { // функция взова и опрделения свойств воркера для асинхронности интерфейса.
+		window.open(
+						'about:blank',
+						'worker',
+						'width=200,height=200,menubar=no,toolbar=no,location=no,resizable=no,scrollbars=no');
+	};
+	function addSP(tt) {
+		var id = Number($('#'+$(tt).parent().parent().attr('id')+' .num').text());
+		var name = $('#'+$(tt).parent().parent().attr('id')+' .point').text().replace(/[└├─│]/gim,'').replace(/(^\s*)|(\s*)$/g,'');
+		$('#header-ModalAddSubSection').text(id + ': ' + name);
+		$('#AddSubSectionToID').val(id);
+	};
+	function edtP(tt) {
+		var id = Number($('#'+$(tt).parent().parent().attr('id')+' .num').text());
+		var name = $('#'+$(tt).parent().parent().attr('id')+' .point').text().replace(/[└├─│]/gim,'').replace(/(^\s*)|(\s*)$/g,'');
+		$('#header-ModalEdtSection').text(id + ': ' + name);
+		$('#EdtSectionID').val(id);
+		$('#new_name_of_parts').val(name);
+	};
+	function delP(tt) {
+		var id = Number($('#'+$(tt).parent().parent().attr('id')+' .num').text());
+		var name = $('#'+$(tt).parent().parent().attr('id')+' .point').text().replace(/[└├─│]/gim,'').replace(/(^\s*)|(\s*)$/g,'');
+		$('#header-ModalDelSection').text(id + ': ' + name);
+		$('#DelSectionID').val(id)
+	};
+	function alSP (tt) {
+		var id = Number($('#'+$(tt).parent().parent().attr('id')+' .num').text());
+		var name = $('#'+$(tt).parent().parent().attr('id')+' .point').text().replace(/[└├─│]/gim,'').replace(/(^\s*)|(\s*)$/g,'');
+		var alia =  Number($('#'+$(tt).parent().parent().attr('id')+' .alia').text().replace(/(^\s*)|(\s*)$/g,''));
+		// управлене табами в модальном окне
+		if (alia != 0){
+			// Активизировать ТАБ "Убрать алиас"
+			$("#addAlias").removeClass('active');
+			$("#addAliasActivator").removeClass('active');
+			$("#removeAlias").addClass('active');
+			$("#removeAliasActivator").addClass('active');
+		}
+		else {
+			// Активизировать ТАБ "Добавить Алиас"
+			$("#addAlias").addClass('active');
+			$("#addAliasActivator").addClass('active');
+			$("#removeAlias").removeClass('active');
+			$("#removeAliasActivator").removeClass('active');
+		}
+		$('#header-ModalAliasSection').text(id + ': ' + name);
+		$('#AliasSectionID').val(id);
+		// alert(Number($('#'+$(tt).parent().parent().attr('id')+' .num').text()));
+	};
+	function moveSP (tt) {
+		var id = Number($('#'+$(tt).parent().parent().attr('id')+' .num').text());
+		var name = $('#'+$(tt).parent().parent().attr('id')+' .point').text().replace(/[└├─│]/gim,'').replace(/(^\s*)|(\s*)$/g,'');
+		$('#header-ModalMoveSection').text(id + ': ' + name);
+		$('#AcceptorMoveSectionID').val(id);
+		// alert(Number($('#'+$(tt).parent().parent().attr('id')+' .num').text()));
+	};
+	// гасить уровни
+	function offL ( level ) {
+		for (var ii = level; ii < 32; ii++) {
+			$('.L'+ii).css({ display:'none', });
+			$('#CH'+ii).prop("checked", true);
+		}
+	};
+	// включает уровни
+	function onnL ( level ) {
+		for (var ii = 1; ii < level+1; ii++) {
+			$('.L'+ii).css({ display:'inline', });
+			$('#CH'+ii).removeAttr("checked");
+		}
+	};
+
+  // кусок для автокомплита
+	$(document).ready(function(){
+		$('#alias_name_of_parts').autocomplete({
+			source: "/autocomplete_sect?csrfmiddlewaretoken={{ csrf_token }}", // Страница для обработки запросов автозаполнения
+      minLength: 1, // Минимальная длина запроса для срабатывания автозаполнения
+      delay: 100
+		});
+		$('#movable_name_of_parts').autocomplete({
+			source: "/autocomplete_sect?csrfmiddlewaretoken={{ csrf_token }}", // Страница для обработки запросов автозаполнения
+      minLength: 1, // Минимальная длина запроса для срабатывания автозаполнения
+      delay: 100
+		});
+		// movable_name_of_parts
+	});
+
+	// кусок для работы  перетаскиванием
+	// Общие доки как "готовить" препарат http://professorweb.ru/my/javascript/jquery/level4/4_12.php
+  var startID, startNаme ;
+	$(function() {
+		$('.draggable').draggable({
+			helper: function () {
+				return ("<span class='glyphicon glyphicon-link' style='color:darkgreen;z-index:10000;'></span>");
+			},
+			start: function() {
+				$('.droppable').css({	backgroundColor: "silver", });
+				// при старте перетаскивания запоминам id стартового обекта
+				startID = Number($('#'+$(this).parent().attr('id')+' .num').text());
+				startName =      $('#'+$(this).parent().attr('id')+' .point').text().replace(/[└├─│]/gim,'').replace(/(^\s*)|(\s*)$/g,'');
+			},
+
+		});
+		$('.droppable').droppable({
+			// если пользователь бросил перетастивать
+			deactivate: function() {
+        $('.droppable').css("background-color", ""); // возвращаем стиль в исходное состояние
+			},
+			// пользователь перетаскивал, но не попал в целевой объект
+			//out: function() {
+      //  $('.droppable').css("background-color", ""); // возвращаем стиль в исходное состояние
+			//},
+			drop: function(event, ui) {
+				$('.droppable').css("background-color", ""); // возвращаем стиль в исходное состояние
+				$('.droppable').each(function (){
+					// определяем приниающий объект
+					if ( ( ui.offset.top > $(this).offset().top ) &&
+							 ( ui.offset.top < ($(this).outerHeight()+$(this).offset().top) ) &&
+							 ( ui.offset.left > $(this).offset().left ) &&
+							 ( ui.offset.left < ($(this).outerWidth()+$(this).offset().left) ) ){
+						// подсвечиваем приниающий объект
+						$(this).css({ backgroundColor: "lightgreen", });
+						// Получаем ID принимающего объекта. Это ID для которого назначаем алаис
+						var id = Number( $('#'+$(this).parent().parent().attr('id')+' .num').text() );
+						// Получаем НАИМЕНОВАНИЕ соответсвующего наимнованию принимающего объекта
+						var name = $('#'+$(this).parent().parent().attr('id')+' .point').text().replace(/[└├─│]/gim,'').replace(/(^\s*)|(\s*)$/g,'');
+						// Узнаем куда попали в перенести или в алиас
+						if ( $(this).attr('class').indexOf("glyphicon-move") >= 0 ){
+							// попоали в перемещение раздела с подразделами
+							// alert ("Перемещение");
+							$('#ModalMoveSection').modal('show');
+							// кладем ID в var скрытого поля формы
+							$('#AcceptorMoveSectionID').val(id);
+							// заполняем шапку формы (для краcоты)
+							$('#header-ModalMoveSection').text(id + ': ' + name);
+							// заполнитняем поля (к сожалению автокомплит не сработает)
+							$('#movable_name_of_parts').val(startID+": "+startName);
+						}
+						else
+						if ( $(this).attr('class').indexOf("glyphicon-transfer") >= 0 ){
+							// попоали в присвоение алиасов
+							// alert ("Алиас");
+							$('#ModalAlias').modal('show');
+							// Активизировать ТАБ "Добавить Алиас"
+							$("#addAlias").addClass('active');
+							$("#addAliasActivator").addClass('active');
+							$("#removeAlias").removeClass('active');
+							$("#removeAliasActivator").removeClass('active');
+							// кладем ID в var скрытого поля формы
+							$('#AliasSectionID').val(id);
+							// заполняем шапку формы (для кратосы)
+							$('#header-ModalAliasSection').text(id + ': ' + name);
+							// заполнитняем поля (к сожалению автокомплит не работает)
+							$('#alias_name_of_parts').val(startID+": "+startName);
+						}
+						// alert( "Что тащили: " + startID );
+						// alert( "Чуда тащили: " + $('#'+$(this).parent().parent().attr('id')+' .num').text() ) ;
+					};
+				});
+			},
+		});
+	});
+
+{#	$(document).ready(function(){#}
+{##}
+{#    var idd = Number($('#'+$(this).parent().attr('id')+' .num').text());#}
+{#	  var ppoint = $('#'+$(this).parent().attr('id')+' .point').text().replace(/[├─│]/gim,'');#}
+{##}
+{#		var a = "<a href=\"#\" class=\"glyphicon glyphicon-plus-sign\" title=\"Добавить подразделы\" data-toggle=\"modal\" data-target=\"#ModalAddSubSection\" onclick=\"addSP(Number($('#'+$(this).parent().attr('id')+' .num').text()),$('#'+$(this).parent().attr('id')+' .point').text().replace(/[├─│]/gim,''));\"></a> <a href=\"#\" class=\"glyphicon glyphicon-edit btn btn-default btn-xs\"></a> <a href=\"#\" class=\"glyphicon glyphicon-move btn btn-default btn-xs\"></a> <a href=\"#\" class=\"glyphicon glyphicon-transfer btn btn-default btn-xs\"></a> <a href=\"#\" class=\"glyphicon glyphicon-trash btn btn-default btn-xs\" onclick=\"alert(Number($('#'+$(this).parent().attr('id')+' .num').text()));\"></a>";#}
+{##}
+{#    $("pre span").mouseover(function(){#}
+{#	    $('#'+$(this).attr('id')+' .tools').html(a);#}
+{#	    // $($(this).attr('id')+' .tools').text("mouse over");#}
+{#    }).mouseout(function(){#}
+{#      $('#'+$(this).attr('id')+' .tools').text("");#}
+{#    });;#}
+{##}
+{##}
+{##}
+{#  });#}
+</script>
+
+<body>
+
+<div class="row col-md-12">
+	<div class="col-md-10">
+    <h1>Cargotogo Classify (классифайд)</h1>
+	</div>
+</div>
+
+<div class="row col-md-12">
+	<div class="col-md-11">
+		<h5>
+			<div style="float: left">Товарных разделов: {{ NUM_T }} 	├┼┤ Разделов ОКВЭД: 0 {# ├┼┼┼┼┼┼┼┤ MAKE_LIGHT #}</div>
+			<div style="float: right">
+				<a href="#" class="btn btn-default btn-xs"><b class="glyphicon glyphicon-sort-by-attributes"></b> Проверить и переиндексировать</a>
+				<a href="#" data-toggle="modal" data-target="#ModalAddToRoot" class="btn btn-default btn-xs"><b class="glyphicon glyphicon-plus-sign"></b> Добавить в корень</a>
+			</div>
+		</h5>
+	</div>
+
+	<div class="col-md-1 сcol-md-offset-1 notes">
+    <h5>Служебное:</h5>
+		<p>
+			<nobr><i class="glyphicon glyphicon-eye-open"></i> — {{ NV }}</nobr><br />
+			<nobr><i class="glyphicon glyphicon-fire"></i> — {{ TAU|floatformat:"-5" }} cек.</nobr><br />
+			<!-- ■ Ταυ: <br / -->
+		</p>
+	</div>
+
+	<div class="col-md-11">
+		<div style="float: left;margin: -30px 0 3px;">
+			{% for lev in LEV_NEST %}
+			  <div style="border: solid 1px; display: inline-block;padding: 2px;margin: 1px 4px">
+				  <input type="checkbox" id="CH{{ lev }}"
+                 onchange="if ($(this).is(':checked')) offL({{ lev }}); if ($(this).is(':not(:checked)')) onnL({{ lev }});" />
+
+				  <b class="glyphicon glyphicon-eye-open"></b> L{{ lev }}</div> {% endfor %}
+    </div>
+	</div>
+
+	<div class="col-md-11 tree">
+	  {% if MAKE_DEL %}<pre class="bg-danger">УДАЛЕНЫ ОБЪЕКТЫ С ID: {{ MAKE_DEL }}</pre>{% endif %}
+		<pre>{% for i in QUERY %}<span id="s{{ i.id }}"{% if i.id in MAKE_LIGHT %} style="background:greenyellow;border-top:1px solid darkgreen;border-bottom:1px solid darkgreen;"{% endif %}{% if i.id in MAKE_AKA %} style="background:orange;border-top:1px solid orangered;border-bottom:1px solid orangered;"{% endif %} class="string L{{ i.nest }}"> <b class="num draggable ui-widget ui-corner-all ui-state-error">{{ i.id|rjust:"5" }}</b>: <b class="point">{{ i.sSectionName_ru|ljust:"100" }}</b> {% if i.alias != None %}<i class="alia">{{ i.alias|center:"5" }}{% else %}     {% endif %}</i> <span class="tools"><a
+				href="#" class="glyphicon glyphicon-plus-sign btn btn-default btn-xs" title="Добавить подразделы" data-toggle="modal" data-target="#ModalAddSubSection" onclick="addSP(this);"></a> <a
+				href="#" class="glyphicon glyphicon-transfer btn btn-default btn-xs droppable" title="Добавить Alias" data-toggle="modal" data-target="#ModalAlias" onclick="alSP(this);"></a> <a
+				href="#" class="glyphicon glyphicon-edit btn btn-default btn-xs" title="Переименовать раздел" data-toggle="modal" data-target="#ModalEdtSection" onclick="edtP(this);"></a> <a
+				href="#" class="glyphicon glyphicon-move btn btn-default btn-xs droppable" title="Пренести сюда другой раздел" data-toggle="modal" data-target="#ModalMoveSection" onclick="moveSP(this);"></a> <a
+				href="#" class="glyphicon glyphicon-trash btn btn-default btn-xs" title="Удалить драздел" data-toggle="modal" data-target="#ModalDelSection" onclick="delP(this);"></a></span>   → <i class="glyphicon glyphicon-info-sign" title="{{ i.path }} ({{ i.sSectionName_trans }})"></i> ←
+</span>{% endfor %}-
+end	</pre>
+	</div>
+
+</div>
+
+
+<!-- Modal Добавить прямо в корень дерева -->
+<div class="modal fade" id="ModalAddToRoot" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span></button>
+        <h4 class="modal-title">Добавить категорию в корень</h4>
+      </div>
+      <div class="modal-body">
+	      <FORm target="worker" method="post" action="\add_to_root">
+		      {% csrf_token %}
+
+		      <div class="input-group">
+			      <div class="radio">
+						  <label>
+						    <input type="radio" name="SectionType" value="1" checked>
+						    Товары
+						  </label>
+						</div>
+						<div class="radio">
+						  <label>
+						    <input type="radio" name="SectionType" id="50" value="50">
+						    ОКВЭД
+						  </label>
+						</div>
+          </div>
+
+					<div class="input-group">
+						<span class="input-group-addon"><i class="glyphicon glyphicon-leaf"></i></span>
+						<input type="text" class="form-control" name="category_to_root" placeholder="…………">
+						<span class="input-group-btn">
+              <button class="btn btn-default" type="submit" onclick="open_worker();" >Записать прямо в корень!</button>
+            </span>
+					</div>
+
+	      </FORm>
+	      <p>&nbsp;</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Добавить подразделы -->
+<div class="modal fade" id="ModalAddSubSection" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span></button>
+        <h4 class="modal-title">Добавить подкатегории к «<span id="header-ModalAddSubSection"></span>»</h4>
+      </div>
+      <div class="modal-body">
+	      <FORm target="worker" method="post" action="\add_subpart">
+		      {% csrf_token %}
+		      <input type='hidden' name='AddSubSectionToID' id='AddSubSectionToID' />
+
+					<div class="input-group form-group">
+						<span class="input-group-addon"><i class="glyphicon glyphicon-leaf"></i><br />
+							<i class="glyphicon glyphicon-option-vertical"></i>
+						</span>
+						<textarea type="text" class="form-control" id="list_of_subparts" name="list_of_subparts" rows="7" placeholder="Одна подкатегория в строке. Двойные пробелы игнорируются."></textarea>
+					</div>
+		      <div class="input-group form-group">
+            <button class="btn btn-default" type="submit" onclick="open_worker();" >Записать подкатегории</button>
+			    </div>
+
+
+	      </FORm>
+	      <p>&nbsp;</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Удалить раздел и его подразделы -->
+<div class="modal fade" id="ModalDelSection" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span></button>
+        <h4 class="modal-title">Удалить «<span id="header-ModalDelSection"></span>» и ВСЕ её подкатегории?</h4>
+      </div>
+      <div class="modal-body">
+	      <FORm target="worker" method="post" action="\del_part_and_subpart">
+		      {% csrf_token %}
+		      <input type='hidden' name='DelSectionID' id='DelSectionID' />
+					<div class="input-group has-warning">
+						<span class="input-group-addon"><i class="glyphicon glyphicon-leaf"></i></span>
+						<input type="text" class="form-control" name="yes_del_parts" placeholder="Напиши «ДА» или «YES» и удалишь категорию и подкатегории.">
+						<span class="input-group-btn">
+              <button class="btn btn-warning" type="submit" onclick="open_worker();" >Удалить нафик!</button>
+            </span>
+					</div>
+	      </FORm>
+	      <p>&nbsp;</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Изменить название раздела или подрездела -->
+<div class="modal fade" id="ModalEdtSection" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span></button>
+        <h4 class="modal-title">Изменить название раздела «<span id="header-ModalEdtSection"></span>»</h4>
+      </div>
+      <div class="modal-body">
+	      <FORm target="worker" method="post" action="\edt_part">
+		      {% csrf_token %}
+		      <input type='hidden' name='EdtSectionID' id='EdtSectionID' />
+					<div class="input-group">
+						<span class="input-group-addon"><i class="glyphicon glyphicon-edit"></i></span>
+						<input type="text" class="form-control" name="new_name_of_parts" id="new_name_of_parts" value="---">
+						<span class="input-group-btn">
+              <button class="btn btn-default" type="submit" onclick="open_worker();" >Переименовать!</button>
+            </span>
+					</div>
+	      </FORm>
+	      <p>&nbsp;</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal сделать раздел Алиасом другого раздела или подрездела -->
+<div class="modal fade" id="ModalAlias" tabindex="-2" role="document" aria-hidden="false">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span></button>
+        <h4 class="modal-title">Работа с Alias/AKA раздела «<span id="header-ModalAliasSection"></span>»</h4>
+      </div>
+      <div class="modal-body">
+	      <FORm target="worker" method="post" action="\edt_make_alias">
+		      {% csrf_token %}
+		      <input type='hidden' name='AliasSectionID' id='AliasSectionID' />
+		      <!--- Работаем с ТАБами --->
+		      <ul class="nav nav-tabs" role="tablist">
+				    <li role="presentation" id="addAliasActivator"><a href="#addAlias" aria-controls="addAlias" role="tab" data-toggle="tab">Назначить Alias</a></li>
+				    <li role="presentation" id="removeAliasActivator"><a href="#removeAlias" aria-controls="removeAlias" role="tab" data-toggle="tab">Снять Alias</a></li>
+				  </ul>
+		      <!--- Сами ТАБ-ы--->
+		      <div class="tab-content">
+				    <!--- Таб добавления алиаса --->
+			      <div role="tabpanel" class="tab-pane" id="addAlias">
+					    <div class="form-group">
+							  <label class="control-label" for="alias_name_of_parts">Назначить как Alias для:</label>
+							  <div class="input-group">
+							    <span class="input-group-addon"><i class="glyphicon glyphicon-transfer"></i></span>
+							    <input type="text" class="form-control" name="alias_name_of_parts" id="alias_name_of_parts" placeholder="Уажите ID или название" autocomplete="on">
+								  <span class="input-group-btn">
+		                <button class="btn btn-default" type="submit" onclick="open_worker();" >Назначить как Alias!</button>
+		              </span>
+							  </div>
+						    <div class="input-group">
+			            <p>&nbsp;</p>
+							    <p>Что такое Alias? Alias -- это ссылка на базовый Aka-раздел. Если какой либо раздел имеет Alias, то в нем оотображается не только все его содержимое, но и содержимое Aka-раздела (того раздела, ID которого указан как Alias). Все подразделы Aka-раздела тоже будут отображаться как подразделы раздела с Alias. Содержимое и подразделы раздела с Alias в бвзовом Aka-разделе не отображаются.</p>
+		            </div>
+							</div>
+				    </div>
+			      <!--- Таб снятия алиаса --->
+				    <div role="tabpanel" class="tab-pane" id="removeAlias">
+					    <div class="form-group">
+						    <p>&nbsp;</p>
+							  <label class="control-label" for="alias_good_bay">
+						      <input type="checkbox" value="del_alias" id="command_remove_alias" name="command_remove_alias">
+						      Я правда-правда хочу убрать Алиас отсюда!
+								</label>
+					    </div>
+					    <div class="form-group">
+						      <button class="btn btn-warning" type="submit" onclick="open_worker();" >Удалить Alias!</button>
+							</div>
+				    </div>
+				  </div>
+	      </FORm>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal сделать раздел Алиасом другого раздела или подрездела -->
+<div class="modal fade" id="ModalMoveSection" tabindex="-2" role="document" aria-hidden="false">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span></button>
+        <h4 class="modal-title">Переместить в раздел «<span id="header-ModalMoveSection"></span>» что-то</h4>
+      </div>
+      <div class="modal-body">
+	      <FORm target="worker" method="post" action="\move_subpart">
+		      {% csrf_token %}
+		      <input type='hidden' name='AcceptorMoveSectionID' id='AcceptorMoveSectionID' />
+			    <div class="form-group">
+					  <label class="control-label" for="movable_name_of_parts">Переместить сюда раздел с подразделами:</label>
+					  <div class="input-group">
+					    <span class="input-group-addon"><i class="glyphicon glyphicon-transfer"></i></span>
+					    <input type="text" class="form-control" name="movable_name_of_parts" id="movable_name_of_parts" placeholder="Уажите ID или название" autocomplete="on">
+						  <span class="input-group-btn">
+                <button class="btn btn-default" type="submit" onclick="open_worker();" >Переноси смело!</button>
+              </span>
+					  </div>
+				    <div class="input-group">
+	            <p>&nbsp;</p>
+					    <p>Указанный раздел вместе с подразделами будет перенесен сюда.</p>
+            </div>
+					</div>
+
+	      </FORm>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+</body>
+
+</html>
