@@ -97,6 +97,14 @@
 			$('#CH'+ii).removeAttr("checked");
 		}
 	};
+	// очищает поле texarea от мусора
+	function clearLL ( iDD ) {
+		var ttext = $(iDD).val();
+		ttext = ttext.replace(/\t/gim,'')
+		ttext = ttext.replace(/^\d*/gim,'')
+		$(iDD).val(ttext);
+		// alert(ttext);
+	};
 
   // кусок для автокомплита
 	$(document).ready(function(){
@@ -226,7 +234,7 @@
 			{% for lev in LEV_NEST %}
 				<div style="border: solid 1px; display: inline-block;padding: 2px;margin: 1px 4px">
 					<input type="checkbox" id="CH{{ lev }}"
-					       onchange="if ($(this).is(':checked')) offL({{ lev }}); if ($(this).is(':not(:checked)')) onnL({{ lev }});"/>
+					       onchange="if ($(this).is(':checked')) offL({{ lev }}); if ($(this).is(':not(:checked)')) onnL({{ lev }});" />
 					<b class="glyphicon glyphicon-eye-open"></b> L{{ lev }} </div> {% endfor %}
 		</div>
 	</div>
@@ -307,6 +315,12 @@ end	</pre>
 						</span>
 						<textarea type="text" class="form-control" id="list_of_subparts" name="list_of_subparts" rows="7"
 						          placeholder="Одна подкатегория в строке. Двойные пробелы игнорируются."></textarea>
+					</div>
+					<div class="input-group form-group">
+						<label class="control-label" for="alias_good_bay">
+							<input type="checkbox" id="claer_gabage" name="claer_gabage" onchange="clearLL('#list_of_subparts');" />
+									Очистить от знаков tab и цифр вначале строк!
+						</label>
 					</div>
 					<div class="input-group form-group">
 						<button class="btn btn-default" type="submit" onclick="open_worker();">Записать подкатегории</button>
