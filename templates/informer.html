@@ -37,23 +37,29 @@
 </style>
 
 <script type="text/javascript">
-	setTimeout("document.getElementById('may_be').innerHTML='Кажется…'", 1500);
 	{% if SOMETHING_DO_WITH_ID > 0 %}
+		   var sps = "{{ SOMETHING_DO_WITH_ID }}".split(',');
+		   var ancor = 100000000000000;
+		   sps.forEach(function(item, i, sps) {
+			   if (Number(item) != 0 && Number(item) < ancor) ancor = Number(item);
+		   });
+		   //alert(ancor);
 			{% if SOMETHING_MAKE_AS_AKA %}
-			  setTimeout("window.opener.document.location.href='/?to_do={{ SOMETHING_DO_WITH_ID }}&to_aka={{ SOMETHING_MAKE_AS_AKA }}'", 2000);
+			  setTimeout("window.opener.document.location.href='/?to_do={{ SOMETHING_DO_WITH_ID }}&to_aka={{ SOMETHING_MAKE_AS_AKA }}#z" + ancor + "'", 100);
 				{% else %}
-			  setTimeout("window.opener.document.location.href='/?to_do={{ SOMETHING_DO_WITH_ID }}'", 2000);
+			  setTimeout("window.opener.document.location.href='/?to_do={{ SOMETHING_DO_WITH_ID }}#z" + ancor + "'", 100);
 			{% endif %}
 		  {% if SOMETHING_DEL %}
-			  setTimeout("window.opener.document.location.href='/?to_do={{ SOMETHING_DO_WITH_ID }}&to_del={{ SOMETHING_DEL }}'", 2000);
+			  setTimeout("window.opener.document.location.href='/?to_do={{ SOMETHING_DO_WITH_ID }}&to_del={{ SOMETHING_DEL }}#z" + ancor + "'", 100);
 		  {% endif %}
 		{% elif SOMETHING_DEL %}
-			setTimeout("window.opener.document.location.href='/?to_del={{ SOMETHING_DEL }}'", 2000);
+			setTimeout("window.opener.document.location.href='/?to_del={{ SOMETHING_DEL }}'", 100);
 		{% else %}
-			setTimeout("window.opener.document.location.href='/'", 2000);
+			setTimeout("window.opener.document.location.href='/'", 100);
 	{% endif %}
 	// setTimeout("window.opener.document.location.href='/?to_do={{ SOMETHING_DO_WITH_ID }}'", 2000);
-	setTimeout("window.close();", 5000);
+	setTimeout("document.getElementById('may_be').innerHTML='Кажется…'", 1500);
+	setTimeout("window.close();", 7000);
 </script>
 
 <div class="vcenter">

@@ -78,7 +78,9 @@ class TreeClassify(models.Model):
     )
     iSectionType = models.SmallIntegerField(
         choices = ((1, u"Товары"),
-                   (50, "ЭКВЭД")),
+                   (50, u"ОКВЭД"),
+                   (67, u"Отрасли и сферы деятельности"),
+                   (100, u"Страны и регионы")),
         default = 1,
         db_index = True,
         unique = False,
