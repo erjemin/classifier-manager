@@ -19,7 +19,8 @@ from classifier.models import TreeClassify
 
 class TreeClassifyAdmin (ModelAdmin):
     search_fields = ['sSectionName_ru', 'sSectionName_trans']
+    ordering = ('sbSortTree', 'id', 'kParent_id', 'sSectionName_ru')
     # list_display = ('sSectionName_ru', 'sSectionName_trans', 'iNesting', 'kParent_id', 'kAlias_id', 'lParentChain' )
-    list_display = ('sSectionName_ru', 'id', 'sSectionName_trans', 'iNesting', 'lParentChain', 'kParent_id', 'kAlias_id' )
+    list_display = ('sSectionName_ru', 'id', 'sSectionName_trans', 'iNesting', 'lParentChain', 'kParent_id', 'sbSortTree', 'kAlias_id',  )
     list_filter = ('iNesting',  )
 admin.site.register(TreeClassify, TreeClassifyAdmin)

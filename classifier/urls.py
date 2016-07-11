@@ -29,6 +29,7 @@ urlpatterns = [
     url( r'^autocomplete_sect$', views.autocomplete_sect ),
     url( r'^edt_make_alias$', views.edt_make_alias ),
     url( r'^move_subpart', views.move_subpart ),
+    url( r'^recheck', views.recheck ),
     #url( r'^admin/doc/', include('django.contrib.admindocs.urls') ),
 
     #url(r'^admin/', admin.site.urls),

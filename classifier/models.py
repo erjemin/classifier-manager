@@ -12,13 +12,29 @@ __author__ = 'Sergei Erjemin'
 # ~~V<
 
 from django.db import models
+import django.db.models.fields
 from datetime import date, datetime
 from django.utils import timezone
 
+# class BinaryCharField(models.CharField):
+#     def __init__(self, *args, **kwargs):
+#         super(BinaryCharField, self).__init__(*args, **kwargs) + ' binary'
+#
+#     # def __init__(self, *args, **kwargs):
+#     #     super(BinaryCharField, self).__init__(*args, **kwargs)
+#
+#     def db_type(self, connection):
+#         return super(self).db_type(connection) + ' binary'
+class BinaryCharField(models.Field):
+    def __init__(self, *args, **kwargs):
+        super(BinaryCharField, self).__init__(*args, **kwargs)
+    def db_type(self, connection):
+        return 'varchar(64) binary'
 #####################################################
 #####################################################
 # таблица ДЕРЕВО-КЛАССИКАТОР
 class TreeClassify(models.Model):
+
     sSectionName_ru = models.CharField(
         max_length=250,
         blank=True,
@@ -87,6 +103,18 @@ class TreeClassify(models.Model):
         help_text = u"Тип раздела",
         verbose_name = u"Даный раздел относится к данному типу"
     )
+    # вообще-то это поле должно быть не посто VARCHAR(64) а VARCHAR(64) BINARY
+    # делаем в базе команду
+    # ALTER TABLE classifier_treeclassify MODIFY sbSortTree VARCHAR BINARY NOT NULL;
+    # или через интерфейсы рефакторинга в dbFofge
+    sbSortTree = models.CharField(
+        db_index=True,
+        max_length=64,
+        unique = False,
+        default="",
+        help_text = u"Сортер",
+        verbose_name = u"Символьно-бинарная строка для быстрой сортировки дерева"
+    )
     dSectionCreate = models.DateTimeField(
         auto_now_add=True,
         verbose_name=u"Создано"
@@ -102,5 +130,5 @@ class TreeClassify(models.Model):
     class Meta:
         verbose_name = u"Катаолог товаров"
         verbose_name_plural = u"Каталог товаров"
-        ordering = ['id', 'kParent_id', 'sSectionName_ru']   # назанчить ordering при ForeignKey просто так нельзя. Только через _id
+        ordering = ['sbSortTree', 'id', 'kParent_id', 'sSectionName_ru']   # назанчить ordering при ForeignKey просто так нельзя. Только через _id
 

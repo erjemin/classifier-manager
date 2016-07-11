@@ -212,8 +212,8 @@
 		<h5>
 			<div style="float: left">Товарных разделов: {{ NUM_T }} ├┼┤ Разделов ОКВЭД: 0 {# ├┼┼┼┼┼┼┼┤ MAKE_LIGHT #}</div>
 			<div style="float: right">
-				<a href="#" class="btn btn-default btn-xs"><b class="glyphicon glyphicon-sort-by-attributes"></b> Проверить и
-					переиндексировать</a>
+				<a href="#" data-toggle="modal" data-target="#ModalReCheck" class="btn btn-default btn-xs"><b
+								class="glyphicon glyphicon-sort-by-attributes"></b> Перестроить Сортер, Цепи и Слэги и т.п.</a>
 				<a href="#" data-toggle="modal" data-target="#ModalAddToRoot" class="btn btn-default btn-xs"><b
 								class="glyphicon glyphicon-plus-sign"></b> Добавить в корень</a>
 			</div>
@@ -288,6 +288,11 @@ end	</pre>
               <button class="btn btn-default" type="submit" onclick="open_worker();">Записать прямо в корень!</button>
             </span>
 					</div>
+					<div class="input-group">
+							<p class="bg-warning">&nbsp;<br />
+							  ВНИМАНИЕ! Потребуется пересортировка всего дерева! Это займет время!! Выпей чаю, да съешь этих вкусных
+								французских булок, и прибудет с нами сила!&nbsp;<br /></p>
+						</div>
 				</FORm>
 				<p>&nbsp;</p>
 			</div>
@@ -480,6 +485,38 @@ end	</pre>
 						<div class="input-group">
 							<p>&nbsp;<br />
 							  Указанный раздел вместе с подразделами будет перенесен сюда.</p>
+						</div>
+					</div>
+				</FORm>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- Modal Перезадать Сортер, Цепи и Слэги и т.п. -->
+<div class="modal fade" id="ModalReCheck" tabindex="-2" role="document" aria-hidden="false">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true" class="glyphicon glyphicon-remove"></span>
+				</button>
+				<h4 class="modal-title">Перезадать «Сортер», «Цепи» и «Слэги» и т.п.</h4>
+			</div>
+			<div class="modal-body">
+				<FORm target="worker" method="post" action="\recheck">
+					{% csrf_token %}
+					<div class="form-group">
+						<label class="control-label" for="movable_name_of_parts">Расколбас</label>
+						<div class="input-group">
+							<span class="input-group-btn">
+                <button class="btn btn-default" type="submit" onclick="open_worker();">Даешь расколбас!</button>
+              </span>
+						</div>
+						<div class="input-group">
+							<p>&nbsp;<br />
+							  Все это может занять много времени... Но будут устранены возможные ошибки и вывод дерева станет быстрее.</p>
 						</div>
 					</div>
 				</FORm>

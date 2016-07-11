@@ -61,7 +61,7 @@ def index (request) :
          NumViz = int(NumViz) + 1             # увеличиваем порядковый номер визитов
 
     # вывод дерева
-    queryTree = TreeClassify.objects.all().filter(iSectionType=1) #.filter(iNesting=0)
+    queryTree = TreeClassify.objects.order_by('iSectionType').order_by('sbSortTree') #.filter(iNesting=0)
     dimention_to_template.update({'NUM_T': queryTree.count()})
     TreeData = []
     maxNest = 0
@@ -74,21 +74,21 @@ def index (request) :
             levNest.append(maxNest)
         Chain = countSection.lParentChain.split(',')
         for count in Chain[0:-1]:
-            queryTMP = TreeClassify.objects.get(id=count)
-            path += queryTMP.sSectionName_ru + ' / '
+        #    queryTMP = TreeClassify.objects.get(id=count)
+        #    path += queryTMP.sSectionName_ru + ' / '
             lag += u" ├──"
-        path += countSection.sSectionName_ru
+        # path += countSection.sSectionName_ru
         strII = lag+countSection.sSectionName_ru
         strII = strII.replace(u"├── ", u"│   ")
         TreeData.append({
             'id': countSection.id,
-            'path': path,
+            'path': countSection.sbSortTree,
             'nest': countSection.iNesting,
             'alias': countSection.kAlias_id,
             'sSectionName_ru': strII,
             'sSectionName_trans': countSection.sSectionName_trans
         })
-    TreeData.sort(key=lambda countSection: countSection['path'])
+    # TreeData.sort(key=lambda countSection: countSection['path'])
     for count in range(0, len(TreeData)):
         try:
             if TreeData[count+1]['nest'] < TreeData[count]['nest']:
@@ -104,8 +104,54 @@ def index (request) :
     response.set_cookie("NumVisit",  NumViz, max_age=604800) ## ставим или перезаписывем куки (неделя)
     return response
 
-    # response = render (request, template, dimention_to_template)
-    # return response
+
+def hlop_hlop ( parentID, parentNESTING, parentCHAIN, sorter, sectionType ):
+    query = TreeClassify.objects.filter(kParent_id=parentID).order_by('sSectionName_ru')
+    iteration = 0
+    for count in query:
+        count.iNesting = parentNESTING+1
+        count.lParentChain = "%s,%d" % (parentCHAIN, count.id)
+        count.sbSortTree = sorter+unichr(iteration+65)
+        count.sSectionName_trans = GetSlug(count.sSectionName_ru)
+        count.iSectionType = sectionType
+        count.save()
+        hlop_hlop(  count.id, count.iNesting, count.lParentChain, count.sbSortTree, count.iSectionType )
+        # print u"id:",count.id, \
+        #     u"|\tname:", count.sSectionName_ru, \
+        #     u"|\tвложеность:", count.iNesting, \
+        #     u"|\tцепочка:", count.lParentChain, \
+        #     u"|\tюнисортер:", count.sbSortTree, \
+        #     u"|\tтип_дерева:", count.iSectionType
+        iteration += 1
+    return
+
+
+# Перезадать «Сортер», «Цепи» и «Слэги» и т.п.
+def recheck (request):
+    tStart = clock()
+    dimention_to_template = {}
+    template = "informer.html" # шаблон
+    # dimention_to_template.update({'SOMETHING_DO_WITH_ID': 0})
+    if request.method == 'POST':
+        queryTree = TreeClassify.objects.filter(kParent_id=None).order_by('sSectionName_ru')
+        iteration = 0
+        for count in queryTree:
+            count.iNesting = 0
+            count.lParentChain = "%d" % count.id
+            count.sbSortTree = unichr(iteration+65)
+            count.sSectionName_trans = GetSlug(count.sSectionName_ru)
+            count.save()
+            # print u"id:",count.id, \
+            #     u"|\tname:", count.sSectionName_ru, \
+            #     u"|\tвложеность:", count.iNesting, \
+            #     u"|\tцепочка:", count.lParentChain, \
+            #     u"|\tюнисортер:", count.sbSortTree, \
+            #     u"|\tтип_дерева:", count.iSectionType
+            hlop_hlop(  count.id, count.iNesting, count.lParentChain, count.sbSortTree, count.iSectionType )
+            iteration += 1
+    dimention_to_template.update({'TAU': float(clock()-tStart)})
+    response = render (request, template, dimention_to_template)
+    return response
 
 
 # Добавление категории в корень
@@ -121,17 +167,28 @@ def add_to_root (request):
                 sSectionName_trans=GetSlug(request.POST['category_to_root']),
                 iNesting=0,
                 lParentChain=0,
+                kParent_id=None,
                 )
             AddSection.save()
             AddSection.lParentChain=AddSection.id
             AddSection.save()
+            # а теперь надо все дерево пересортировать (долго и нудно) как в recheck
+            queryTree = TreeClassify.objects.filter(kParent_id=None).order_by('sSectionName_ru')
+            iteration = 0
+            for count in queryTree:
+                count.iNesting = 0
+                count.lParentChain = "%d" % count.id
+                count.sbSortTree = unichr(iteration+65)
+                count.sSectionName_trans = GetSlug(count.sSectionName_ru)
+                count.save()
+                hlop_hlop(  count.id, count.iNesting, count.lParentChain, count.sbSortTree, count.iSectionType )
+                iteration += 1
             dimention_to_template.update({'SOMETHING_DO_WITH_ID': AddSection.id})
             dimention_to_template.update({'MSG': u"Добавили в корень «%s» (ID&nbsp;%d)" % (request.POST['category_to_root'], AddSection.id)})
 
     dimention_to_template.update({'TAU': float(clock()-tStart)})
     response = render (request, template, dimention_to_template)
     return response
-
 
 
 # Добавление подкатегории к разделу
@@ -159,9 +216,10 @@ def add_subpart (request):
                 AddRec.lParentChain=q.lParentChain+','+str(AddRec.id)
                 AddRec.save()
                 toMark += ','+str(AddRec.id)
+            # а теперь надо пересортировать все что относится к робителю, в которого прилетели подразделы
+            hlop_hlop(  q.id, q.iNesting, q.lParentChain, q.sbSortTree, q.iSectionType )
             dimention_to_template.update({'MSG': u"Добавили подкатегории «%s»" % request.POST['list_of_subparts']})
             dimention_to_template.update({'SOMETHING_DO_WITH_ID': toMark})
-
     dimention_to_template.update({'TAU': float(clock()-tStart)})
     response = render (request, template, dimention_to_template)
     return response
@@ -179,30 +237,36 @@ def del_part_and_subpart (request):
             yes = request.POST['yes_del_parts']
             if yes.upper() in ['YES',u'да',u'Да',u'ДА',u'дА']:
                 # надо найти всех детей этого DelSectionID
-                children = []
                 toMark = ''
+                children = []
                 R = TreeClassify.objects.get(id=request.POST['DelSectionID'])
-                # P = TreeClassify.objects.filter(lParentChain__contains=R.lParentChain)
-                P = TreeClassify.objects.all()
-                children.append(R.id)
+                # запоминаем родителя, для последующей переиндексации его веточки
+                # parrrent = R.kParent_id
+                # получаем всех детей всех вложений
+                P = TreeClassify.objects.filter(lParentChain__istartswith=R.lParentChain)
+                # P = TreeClassify.objects.all()
                 for count in P:
-                    if re.match(R.lParentChain+',', count.lParentChain):
-                        children.append(count.id)
-                for count in children:
+                    # нужно не забыть дропнуть алиасы назначенные на удаляемые подразделы
                     try:
-                        R = TreeClassify.objects.get(id=count)
-                        qDropAlias = TreeClassify.objects.filter(kAlias_id=R.id)
+                        qDropAlias = TreeClassify.objects.filter(kAlias_id=count.id)
+                        print u"удалили id:", count.id
+                        count.delete()
                         for wAli in qDropAlias:
                             wAli.kAlias_id = None
-                            wAli.save()
                             toMark += "%d," % wAli.id
-                        R.delete()
+                            print u"сняли алиас с id:", wAli.id
+                            wAli.save()
+                        children.append(count.id)
                     except:
                         pass
+                print toMark
                 dimention_to_template.update({'MSG': u"Удалили нафиг ID «%s»" % children})
                 dimention_to_template.update({'SOMETHING_DEL': children})
                 dimention_to_template.update({'SOMETHING_DO_WITH_ID': toMark[:-1]})
-
+                # а теперь надо пересортировать все что относится к робителю, из которого удалили раздел
+                # хотя, по большому, счету при удалении пересортировыват вообще не обязательно
+                # само переиндексируется при каких-нибудь следующих действиях
+                # hlop_hlop(  R.id, R.iNesting, R.lParentChain, R.sbSortTree, R.iSectionType )
     dimention_to_template.update({'TAU': float(clock()-tStart)})
     response = render (request, template, dimention_to_template)
     return response
@@ -225,6 +289,10 @@ def edt_part (request):
             R.sSectionName_ru = name
             R.sSectionName_trans = GetSlug(name)
             R.save()
+            # а теперь надо пересортировать все что относится к родителю, в котолром переименовали раздел
+            # а перед этим найти этого родителя
+            Rec = TreeClassify.objects.get(id=R.kParent_id)
+            hlop_hlop(  Rec.id, Rec.iNesting, Rec.lParentChain, Rec.sbSortTree, Rec.iSectionType )
             dimention_to_template.update({'MSG': u"Переименовали ID «%s»" % R.id})
             dimention_to_template.update({'SOMETHING_DO_WITH_ID': R.id})
 
@@ -266,8 +334,6 @@ def edt_make_alias (request):
                     #print request.POST['AliasSectionID']
                 except:
                     pass
-
-
     dimention_to_template.update({'TAU': float(clock()-tStart)})
     response = render (request, template, dimention_to_template)
     return response
@@ -303,9 +369,15 @@ def move_subpart (request):
                 count.lParentChain = chain
                 count.iNesting = len(list(chain.split(',')))-1
                 count.save()
+
+            # а теперь надо пересортировать все что относится к новым родителям, в который переинесли раздел
+            # а вот старых родителей можно не трогать. Как-нибудь само переиндексируется после
+            # и еще надо найти раителя нового
+            Rec = TreeClassify.objects.get(id=R.kParent_id)
+            hlop_hlop(  Rec.id, Rec.iNesting, Rec.lParentChain, Rec.sbSortTree, Rec.iSectionType )
+
             dimention_to_template.update({'MSG': u"Перенесли ID «%s»" % children})
             dimention_to_template.update({'SOMETHING_DO_WITH_ID': toMark[:-1]})
-
     dimention_to_template.update({'TAU': float(clock()-tStart)})
     response = render (request, template, dimention_to_template)
     return response
