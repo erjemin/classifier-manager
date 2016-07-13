@@ -1,0 +1,114 @@
+<!DOCTYPE html>{% load staticfiles %}
+<html lang="ru">
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="content-language" content="ru" />
+	<meta http-equiv="Date" content="{% block Date4Meta %}{% now "c" %}{% endblock %}" />
+	<meta http-equiv="Last-Modified" content="{% block Last4Meta %}{% now "c" %}{% endblock %}" />
+	<meta http-equiv="Expires" content="{% block Expires4Meta %}{% now "c" %}{% endblock %}" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="description" content="{% block Description %}{% endblock %}" />
+	<meta name="keywords" content="{% block Keywords %}{% endblock %}" />
+	<meta name="author" content="Sergi Erjemin{% block Author4Meta %}{% endblock %}" />
+	<meta name="copyright" lang="ru" content="Sergei Erjemin{% block CopyrightAuthor4Meta %}{% endblock %}" />
+	<meta name="robots" content="index,follow" />
+	<meta name="document-state" content="{{ META_DOCUMENT_STATE|default:"Dynamic" }}" />
+	<meta name="generator" content="TreeClassify 0.1β by Python/Django" />
+	<title>classifier-manager DEMO: Тут растут деревья</title>
+</head>
+<link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+<!--link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" / -->
+<link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css" />
+
+{% block Top_CSS1 %}{% endblock %}{% block Top_CSS2 %}{% endblock %}{% block Top_CSS3 %}{% endblock %}
+<script src="//code.jquery.com/jquery-2.1.1.min.js" type="text/javascript"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="//code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script>
+<link href="{% static 'css/base.css' %}" rel="stylesheet" type="text/css"  />
+{% block Top_JS1 %}{% endblock %}{% block Top_JS2 %}{% endblock %}{% block Top_JS3 %}{% endblock %}
+<script type="text/javascript">
+function open_worker() { // функция взова и опрделения свойств воркера для асинхронности интерфейса.
+		window.open(
+						'about:blank',
+						'worker',
+						'width=200,height=200,menubar=no,toolbar=no,location=no,resizable=no,scrollbars=no');
+	};
+function edtP(tt) {
+	var id = Number($('#'+$(tt).parent().attr('id')+' .num').text());
+	var name = $('#'+$(tt).parent().attr('id')+' .point').text().replace(/(^\s*)|(\s*)$/g,'');
+	$('#header-ModalEdtSection').text(id + ': ' + name);
+	$('#EdtSectionID').val(id);
+	$('#new_name_of_parts').val(name);
+
+};
+</script>
+
+<body>
+
+<div class="row col-md-12">
+	<div class="col-md-10">
+    <h1>classifier-manager (искатель алиасов)</h1>
+	</div>
+</div>
+
+<div class="row col-md-12">
+	<div class="col-md-11">
+		<h5>
+			<div style="float: left">Alias-Кандидатов: {{ NUM_T }}</div>
+		</h5>
+	</div>
+
+	<div class="col-md-1 сcol-md-offset-1 notes">
+		<h5>Служебное:</h5>
+		<p>
+			<nobr><i class="glyphicon glyphicon-eye-open"></i> — {{ NV }}</nobr><br/>
+			<nobr><i class="glyphicon glyphicon-fire"></i> — {{ TAU|floatformat:"-5" }} cек.</nobr><br/>
+			<!-- ■ Ταυ: <br / -->
+		  <a href="\" class="btn btn-default btn-xs">Менеджер<br />деревьев</a>
+		</p>
+	</div>
+
+	<div class="col-md-11 tree">
+		{% for count_set in ALIAS_ARR %}<form name="f{{ forloop.counter0 }}" target="worker" method="post" action="/alias-marker"><pre>{% for item in count_set.inset %}<a name="z{{ item.id_s }}"></a><span id="s{{ item.id_s }}" class="string"{% if item.id_s in MAKE_LIGHT %} style="background:greenyellow;border-top:1px solid darkgreen;border-bottom:1px solid darkgreen;"{% endif %}{% if item.id_s in MAKE_AKA %} style="background:orange;border-top:1px solid orangered;border-bottom:1px solid orangered;"{% endif %}><u class="num">{{ item.id_s|rjust:"5" }}</u>: <b class="point">{{ count_set.name|ljust:"70" }}</b> <label>aka → <input type="radio" style="margin:0;vertical-align: sub;" name="aka" value="{{ item.id_s }}" {% if item.alias_s == None %} checked="checked"{% endif %}></label> <label><input type="checkbox"  style="margin:0;vertical-align: sub;" name="alias" value="{{ item.id_s }}"{% if item.alias_s != None %} checked="checked"{% endif %}> ← alias</label> {% if item.alias_s != None %}<i class="alia">{{ item.alias_s|center:"5" }}</i>{% else %}     {% endif %} <a
+				href="#" class="glyphicon glyphicon-edit btn btn-default btn-xs" title="Переименовать раздел" data-toggle="modal" data-target="#ModalEdtSection" onclick="edtP(this);"></a> <span title="{{ item.path_s }}">→ <i class="glyphicon glyphicon-info-sign"></i> <small style="font-size: xx-small">{{ item.path_s|truncatechars:80 }}</small></span></span>
+{% endfor %}{% csrf_token %}<small style="font-size:xx-small;" class="badge"># {{ forloop.counter0|rjust:"3" }}</small>                                                                             <button type="submit" name="submit{{ forloop.counter }}" class="btn btn-default btn-xs" onclick="open_worker();">Фигач!</button></pre></form>{% endfor %}
+
+	</div>
+</div>
+
+<!-- Modal Изменить название раздела или подрездела -->
+<div class="modal fade" id="ModalEdtSection" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true" class="glyphicon glyphicon-remove"></span>
+				</button>
+				<h4 class="modal-title">Изменить название раздела «<span id="header-ModalEdtSection"></span>»</h4>
+			</div>
+			<div class="modal-body">
+				<FORm target="worker" method="post" action="\edt_part">
+					{% csrf_token %}
+					<input type='hidden' name='EdtSectionID' id='EdtSectionID'/>
+					<input type='hidden' name='worker' value='1'/>
+					<div class="input-group">
+						<span class="input-group-addon"><i class="glyphicon glyphicon-edit"></i></span>
+						<input type="text" class="form-control" name="new_name_of_parts" id="new_name_of_parts" value="---">
+						<span class="input-group-btn">
+              <button class="btn btn-default" type="submit" onclick="open_worker();">Переименовать!</button>
+            </span>
+					</div>
+				</FORm>
+				<p>&nbsp;</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+</body>
+
+</html>

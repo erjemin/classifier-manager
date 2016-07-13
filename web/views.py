@@ -37,7 +37,6 @@ def index (request) :
         if 'to_do' in request.GET:
             # MarkRowWithID = int(request.GET['to_do'])
             MarkRowWithID = request.GET['to_do'].split(',')
-
             for countSection in range(0, len(MarkRowWithID)):
                 try:
                     MarkRowWithID[countSection] = int(MarkRowWithID[countSection])
@@ -280,6 +279,8 @@ def edt_part (request):
     dimention_to_template.update({'SOMETHING_DO_WITH_ID': 0})
     if request.method == 'POST':
         if 'EdtSectionID' in request.POST and 'new_name_of_parts' in request.POST:
+            if 'worker' in request.POST:
+                template = "informer1.html" # шаблон
             # получаеМ
             R = TreeClassify.objects.get(id=request.POST['EdtSectionID'])
             # меняем название и транслит
@@ -383,8 +384,6 @@ def move_subpart (request):
     return response
 
 
-
-
 # Автокомлит для категорий
 def autocomplete_sect (request):
     tStart = clock()
@@ -409,3 +408,101 @@ def autocomplete_sect (request):
     msg = '[' + msg[:-1] + ']'
     # print msg
     return HttpResponse ( msg )
+
+
+# Инструменты поиска алиасов
+def aliasmanager (request):
+    tStart = clock()
+    dimention_to_template = {}
+    template = "aliaser.html" # шаблон
+    MarkRowWithID = []
+    if request.method == 'GET':
+        if 'to_do' in request.GET:
+            # MarkRowWithID = int(request.GET['to_do'])
+            MarkRowWithID = request.GET['to_do'].split(',')
+            for countSection in range(0, len(MarkRowWithID)):
+                try:
+                    MarkRowWithID[countSection] = int(MarkRowWithID[countSection])
+                except:
+                    pass
+            # MarkRowWithID.append(int(request.GET['to_do']))
+        if 'to_aka' in request.GET:
+            try:
+                dimention_to_template.update({'MAKE_AKA': [int(request.GET['to_aka'])]})
+            except:
+                pass
+
+    dimention_to_template.update({'MAKE_LIGHT': MarkRowWithID})
+    NumViz = 0 # как будто первый визит
+    if 'NumVisit' in request.COOKIES:
+         # стоят кукии, и это не первый визит
+         NumViz = request.COOKIES['NumVisit'] # читаем из кук число визитов
+         NumViz = int(NumViz) + 1             # увеличиваем порядковый номер визитов
+
+    # поиск алаас-кандидатов
+    qAliasCandidat = TreeClassify.objects.raw(
+        u"SELECT" \
+        u"  classifier_treeclassify.sSectionName_ru AS id," \
+        u"  COUNT(classifier_treeclassify.sSectionName_ru) AS INTERSEC " \
+        u"FROM classifier_treeclassify " \
+        u"GROUP BY classifier_treeclassify.sSectionName_ru " \
+        u"HAVING COUNT(classifier_treeclassify.sSectionName_ru) > 1 " \
+        u"ORDER BY" \
+        u"   INTERSEC," \
+        u"   classifier_treeclassify.sSectionName_ru;" \
+    )
+    dimention_to_template.update({'NUM_T': len(list(qAliasCandidat))})
+    DimAlias = []
+    for count in qAliasCandidat:
+        qInAlias = TreeClassify.objects.filter(sSectionName_ru=count.id).order_by('sbSortTree')
+        InAliasSet = []
+        for iid in qInAlias:
+            path = ""
+            Chain = iid.lParentChain.split(',')
+            for count_chain in Chain[0:-1]:
+                queryTMP = TreeClassify.objects.get(id=int(count_chain))
+                path += queryTMP.sSectionName_ru + ' / '
+            ItemInAlias = {
+                'path_s': path,
+                'id_s': iid.id,
+                'alias_s': iid.kAlias_id
+            }
+            InAliasSet.append(ItemInAlias)
+        # print InAliasSet
+        DimAlias.append({ 'name': count.id,
+                          'inset': InAliasSet })
+        #print count.id, count.INTERSEC
+    #print DimAlias
+
+    dimention_to_template.update({'ALIAS_ARR': DimAlias})
+    # dimention_to_template.update({'SOMETHING_DO_WITH_ID': 0})
+    dimention_to_template.update({'NV': NumViz})
+    dimention_to_template.update({'TAU': float(clock()-tStart)})
+    response = render (request, template, dimention_to_template)
+    response.set_cookie("NumVisit",  NumViz, max_age=604800) ## ставим или перезаписывем куки (неделя)
+    return response
+
+
+# Склеиватель алиасов в инструментах поиска алиасов
+def aliasmarker (request):
+    tStart = clock()
+    dimention_to_template = {}
+    template = "informer1.html" # шаблон
+    if request.method == 'POST':
+        something_do = u''
+        if 'alias' in request.POST and 'aka' in request.POST:
+            for count_alias in request.POST.getlist('alias'):
+                q2Alias = TreeClassify.objects.get(id=int(count_alias))
+                q2Alias.kAlias_id = int(request.POST['aka'])
+                q2Alias.save()
+                something_do += "%d," % int(count_alias)
+            # print something_do
+            q2aka = TreeClassify.objects.get(id=int(request.POST['aka']))
+            q2aka.kAlias_id = None
+            q2aka.save()
+        dimention_to_template.update({'SOMETHING_DO_WITH_ID': something_do[:-1]})
+        dimention_to_template.update({'SOMETHING_MAKE_AS_AKA': request.POST['aka']})
+        dimention_to_template.update({'MSG': u"Рулю аласами ID «%s»" % something_do[:-1]})
+    dimention_to_template.update({'TAU': float(clock()-tStart)})
+    response = render (request, template, dimention_to_template)
+    return response

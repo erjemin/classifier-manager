@@ -30,6 +30,8 @@ urlpatterns = [
     url( r'^edt_make_alias$', views.edt_make_alias ),
     url( r'^move_subpart', views.move_subpart ),
     url( r'^recheck', views.recheck ),
+    url( r'^alias-manager', views.aliasmanager ),
+    url( r'^alias-marker', views.aliasmarker ),
     #url( r'^admin/doc/', include('django.contrib.admindocs.urls') ),
 
     #url(r'^admin/', admin.site.urls),
