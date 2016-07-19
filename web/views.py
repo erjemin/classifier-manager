@@ -21,7 +21,7 @@ import re
 import urllib
 import datetime
 from add_func import GetSlug
-
+from classifier.models import SECTION_TYPE
 from django.template import loader, Context
 
 import random
@@ -50,7 +50,6 @@ def index (request) :
                 dimention_to_template.update({'MAKE_AKA': [int(request.GET['to_aka'])]})
             except:
                 pass
-
     dimention_to_template.update({'MAKE_LIGHT': MarkRowWithID})
 
     NumViz = 0 # как будто первый визит
@@ -58,14 +57,29 @@ def index (request) :
          # стоят кукии, и это не первый визит
          NumViz = request.COOKIES['NumVisit'] # читаем из кук число визитов
          NumViz = int(NumViz) + 1             # увеличиваем порядковый номер визитов
-
+    # варианты деревьев
+    TreeVariant = []
+    for i in SECTION_TYPE:
+        TreeVariant.append({
+            'TREE_NAME': i[1],
+            'TREE_VAL': i[0]
+        })
+    dimention_to_template.update({ 'TREE_VARIANT': TreeVariant })
     # вывод дерева
+
     queryTree = TreeClassify.objects.order_by('iSectionType').order_by('sbSortTree') #.filter(iNesting=0)
     dimention_to_template.update({'NUM_T': queryTree.count()})
     TreeData = []
     maxNest = 0
     levNest = []
+    TypeOfTree = -100
     for countSection in queryTree:
+        if TypeOfTree != countSection.iSectionType:
+            TypeOfTree = countSection.iSectionType
+            TreeData.append({
+                'id': 'NEW_SEC',
+                'sSectionName_ru': countSection.get_iSectionType_display()
+                 })
         lag = u""
         path = u""
         if maxNest < countSection.iNesting:
@@ -103,7 +117,7 @@ def index (request) :
     response.set_cookie("NumVisit",  NumViz, max_age=604800) ## ставим или перезаписывем куки (неделя)
     return response
 
-
+# Сортировка и исправление даннх в веточке дерева (для рекурсивной сортировки деревьев)
 def hlop_hlop ( parentID, parentNESTING, parentCHAIN, sorter, sectionType ):
     query = TreeClassify.objects.filter(kParent_id=parentID).order_by('sSectionName_ru')
     iteration = 0
@@ -160,28 +174,30 @@ def add_to_root (request):
     template = "informer.html" # шаблон
     dimention_to_template.update({'SOMETHING_DO_WITH_ID': 0})
     if request.method == 'POST':
-        if 'category_to_root' in request.POST:
+        if 'category_to_root' in request.POST and 'SectionType' in request.POST:
+            print request.POST['SectionType']
             AddSection = TreeClassify(
                 sSectionName_ru=request.POST['category_to_root'],
                 sSectionName_trans=GetSlug(request.POST['category_to_root']),
                 iNesting=0,
                 lParentChain=0,
                 kParent_id=None,
+                iSectionType = int(request.POST['SectionType']),
                 )
             AddSection.save()
             AddSection.lParentChain=AddSection.id
             AddSection.save()
             # а теперь надо все дерево пересортировать (долго и нудно) как в recheck
-            queryTree = TreeClassify.objects.filter(kParent_id=None).order_by('sSectionName_ru')
-            iteration = 0
-            for count in queryTree:
-                count.iNesting = 0
-                count.lParentChain = "%d" % count.id
-                count.sbSortTree = unichr(iteration+65)
-                count.sSectionName_trans = GetSlug(count.sSectionName_ru)
-                count.save()
-                hlop_hlop(  count.id, count.iNesting, count.lParentChain, count.sbSortTree, count.iSectionType )
-                iteration += 1
+            # queryTree = TreeClassify.objects.filter(kParent_id=None).order_by('sSectionName_ru')
+            # iteration = 0
+            # for count in queryTree:
+            #     count.iNesting = 0
+            #     count.lParentChain = "%d" % count.id
+            #     count.sbSortTree = unichr(iteration+65)
+            #     count.sSectionName_trans = GetSlug(count.sSectionName_ru)
+            #     count.save()
+            #     hlop_hlop(  count.id, count.iNesting, count.lParentChain, count.sbSortTree, count.iSectionType )
+            #     iteration += 1
             dimention_to_template.update({'SOMETHING_DO_WITH_ID': AddSection.id})
             dimention_to_template.update({'MSG': u"Добавили в корень «%s» (ID&nbsp;%d)" % (request.POST['category_to_root'], AddSection.id)})
 
@@ -505,4 +521,70 @@ def aliasmarker (request):
         dimention_to_template.update({'MSG': u"Рулю аласами ID «%s»" % something_do[:-1]})
     dimention_to_template.update({'TAU': float(clock()-tStart)})
     response = render (request, template, dimention_to_template)
+    return response
+
+
+# Глюкало, строит дерево с помощью Google Chats
+def glukalo1 (request):
+    tStart = clock()
+    dimention_to_template = {}
+    template = "glukalo_1.html" # шаблон
+
+    NumViz = 0 # как будто первый визит
+    if 'NumVisit' in request.COOKIES:
+         # стоят кукии, и это не первый визит
+         NumViz = request.COOKIES['NumVisit'] # читаем из кук число визитов
+         NumViz = int(NumViz) + 1             # увеличиваем порядковый номер визитов
+
+    queryTree = TreeClassify.objects.order_by('iSectionType').order_by('sbSortTree') #.filter(iNesting=0)
+    Data = []
+    for countSection in queryTree:
+        # path = u""
+        #Chain = countSection.lParentChain.split(',')
+        #for count in Chain[0:-1]:
+        #    queryTMP = TreeClassify.objects.get(id=count)
+        #    path += queryTMP.sSectionName_ru + ' / '
+        # path += countSection.sSectionName_ru
+        Data.append( u"root " + countSection.sSectionName_ru )
+    # TreeData.sort(key=lambda countSection: countSection['path'])
+    dimention_to_template.update({'DATA': Data})
+    dimention_to_template.update({'NV': NumViz})
+    dimention_to_template.update({'TAU': float(clock()-tStart)})
+    response = render (request, template, dimention_to_template)
+    response.set_cookie("NumVisit",  NumViz, max_age=604800) ## ставим или перезаписывем куки (неделя)
+    return response
+
+
+# Глюкало, строит дерево с помощью Google Chats
+def glukalo2 (request):
+    tStart = clock()
+    dimention_to_template = {}
+    template = "glukalo_2.html" # шаблон
+    NumViz = 0 # как будто первый визит
+    if 'NumVisit' in request.COOKIES:
+         # стоят кукии, и это не первый визит
+         NumViz = request.COOKIES['NumVisit'] # читаем из кук число визитов
+         NumViz = int(NumViz) + 1             # увеличиваем порядковый номер визитов
+
+
+    # перебор видов деревьев
+    for i in SECTION_TYPE:
+        print i[0]
+
+    Data = []
+    queryTree = TreeClassify.objects.order_by('iSectionType').order_by('sbSortTree') #.filter(iNesting=0)
+    for countSection in queryTree:
+        path = u""
+        Chain = countSection.lParentChain.split(',')
+        queryTMP = TreeClassify.objects.filter(id__in=Chain[0:-1]).order_by('sbSortTree')
+        for i in queryTMP:
+            path += i.sSectionName_ru + ' '
+        path += countSection.sSectionName_ru
+        Data.append( u"root " + path )
+
+    dimention_to_template.update({'DATA': Data})
+    dimention_to_template.update({'NV': NumViz})
+    dimention_to_template.update({'TAU': float(clock()-tStart)})
+    response = render (request, template, dimention_to_template)
+    response.set_cookie("NumVisit",  NumViz, max_age=604800) ## ставим или перезаписывем куки (неделя)
     return response

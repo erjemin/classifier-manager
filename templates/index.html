@@ -210,7 +210,7 @@
 <div class="row col-md-12">
 	<div class="col-md-11">
 		<h5>
-			<div style="float: left">Товарных разделов: {{ NUM_T }} ├┼┤ Разделов ОКВЭД: 0 {# ├┼┼┼┼┼┼┼┤ MAKE_LIGHT #}</div>
+			Товарных разделов: {{ NUM_T }} ├┼┤ Разделов ОКВЭД: 0 {# ├┼┼┼┼┼┼┼┤ MAKE_LIGHT #}
 			<div style="float: right">
 				<a href="#" data-toggle="modal" data-target="#ModalReCheck" class="btn btn-default btn-xs"><b
 								class="glyphicon glyphicon-sort-by-attributes"></b> Перестроить Сортер, Цепи и Слэги и т.п.</a>
@@ -220,18 +220,23 @@
 		</h5>
 	</div>
 
-	<div class="col-md-1 сcol-md-offset-1 notes">
+  <div class="col-md-1 notes" style="float: right;">
 		<h5>Служебное:</h5>
 		<p>
 			<nobr><i class="glyphicon glyphicon-eye-open"></i> — {{ NV }}</nobr><br/>
 			<nobr><i class="glyphicon glyphicon-fire"></i> — {{ TAU|floatformat:"-5" }} cек.</nobr><br/>
 			<!-- ■ Ταυ: <br / -->
-		  <a href="\alias-manager" class="btn btn-default btn-xs">Alias-менеджер</a>
+	    &nbsp;<br />
+		  <a href="\alias-manager" class="btn btn-default btn-xs">Alias-менеджер</a><br />
+		  &nbsp;<br />
+		  <a href="\glukalo_1" class="btn btn-default btn-xs">Глюкало №1</a><br />
+		  &nbsp;<br />
+		  <a href="\glukalo_2" class="btn btn-default btn-xs">Глюкало №2</a><br />
 		</p>
 	</div>
 
 	<div class="col-md-11">
-		<div style="float: left;margin: -30px 0 3px;">
+		<div style="margin: 0px 0 3px;">
 			{% for lev in LEV_NEST %}
 				<div style="border: solid 1px; display: inline-block;padding: 2px;margin: 1px 4px">
 					<input type="checkbox" id="CH{{ lev }}"
@@ -242,13 +247,14 @@
 
 	<div class="col-md-11 tree">
 	  {% if MAKE_DEL %}<pre class="bg-danger">УДАЛЕНЫ ОБЪЕКТЫ С ID: {{ MAKE_DEL }}</pre>{% endif %}
-		<pre>{% for i in QUERY %}<a name="z{{ i.id }}"></a><span id="s{{ i.id }}"{% if i.id in MAKE_LIGHT %} style="background:greenyellow;border-top:1px solid darkgreen;border-bottom:1px solid darkgreen;"{% endif %}{% if i.id in MAKE_AKA %} style="background:orange;border-top:1px solid orangered;border-bottom:1px solid orangered;"{% endif %} class="string L{{ i.nest }}"> <b class="num draggable ui-widget ui-corner-all ui-state-error">{{ i.id|rjust:"5" }}</b>: <b class="point">{{ i.sSectionName_ru|ljust:"100" }}</b> {% if i.alias != None %}<i class="alia">{{ i.alias|center:"5" }}{% else %}     {% endif %}</i> <span class="tools"><a
+		<pre>{% for i in QUERY %}{% if i.id == 'NEW_SEC' %}<big style="font-size: x-large; font-weight:900;color: purple">==> {{ i.sSectionName_ru }} <==</big>
+{% else %}<a name="z{{ i.id }}"></a><span id="s{{ i.id }}"{% if i.id in MAKE_LIGHT %} style="background:greenyellow;border-top:1px solid darkgreen;border-bottom:1px solid darkgreen;"{% endif %}{% if i.id in MAKE_AKA %} style="background:orange;border-top:1px solid orangered;border-bottom:1px solid orangered;"{% endif %} class="string L{{ i.nest }}"> <b class="num draggable ui-widget ui-corner-all ui-state-error">{{ i.id|rjust:"5" }}</b>: <b class="point">{{ i.sSectionName_ru|ljust:"100" }}</b> {% if i.alias != None %}<i class="alia">{{ i.alias|center:"5" }}{% else %}     {% endif %}</i> <span class="tools"><a
 				href="#" class="glyphicon glyphicon-plus-sign btn btn-default btn-xs" title="Добавить подразделы" data-toggle="modal" data-target="#ModalAddSubSection" onclick="addSP(this);"></a> <a
 				href="#" class="glyphicon glyphicon-transfer btn btn-default btn-xs droppable" title="Добавить Alias" data-toggle="modal" data-target="#ModalAlias" onclick="alSP(this);"></a> <a
 				href="#" class="glyphicon glyphicon-edit btn btn-default btn-xs" title="Переименовать раздел" data-toggle="modal" data-target="#ModalEdtSection" onclick="edtP(this);"></a> <a
 				href="#" class="glyphicon glyphicon-move btn btn-default btn-xs droppable" title="Пренести сюда другой раздел" data-toggle="modal" data-target="#ModalMoveSection" onclick="moveSP(this);"></a> <a
 				href="#" class="glyphicon glyphicon-trash btn btn-default btn-xs" title="Удалить драздел" data-toggle="modal" data-target="#ModalDelSection" onclick="delP(this);"></a></span>   → <i class="glyphicon glyphicon-info-sign" title="{{ i.path }} ({{ i.sSectionName_trans }})"></i> ←
-</span>{% endfor %}-
+</span>{% endif %}{% endfor %}-
 end	</pre>
 
 	</div>
@@ -270,18 +276,12 @@ end	</pre>
 				<FORm target="worker" method="post" action="\add_to_root">
 					{% csrf_token %}
 					<div class="input-group">
-						<div class="radio">
+						{% for i in TREE_VARIANT %}<div class="radio">
 							<label>
-								<input type="radio" name="SectionType" value="1" checked>
-								Товары
+								<input type="radio" name="SectionType" value="{{ i.TREE_VAL }}">
+								{{ i.TREE_NAME }}
 							</label>
-						</div>
-						<div class="radio">
-							<label>
-								<input type="radio" name="SectionType" id="50" value="50">
-								ОКВЭД
-							</label>
-						</div>
+						</div>{% endfor %}
 					</div>
 					<div class="input-group">
 						<span class="input-group-addon"><i class="glyphicon glyphicon-leaf"></i></span>

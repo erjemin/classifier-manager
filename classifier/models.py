@@ -16,15 +16,11 @@ import django.db.models.fields
 from datetime import date, datetime
 from django.utils import timezone
 
-# class BinaryCharField(models.CharField):
-#     def __init__(self, *args, **kwargs):
-#         super(BinaryCharField, self).__init__(*args, **kwargs) + ' binary'
-#
-#     # def __init__(self, *args, **kwargs):
-#     #     super(BinaryCharField, self).__init__(*args, **kwargs)
-#
-#     def db_type(self, connection):
-#         return super(self).db_type(connection) + ' binary'
+SECTION_TYPE  = ((1, u"Товары"),
+                 (50, u"ОКВЭД"),
+                 (67, u"Отрасли и сферы деятельности"),
+                 (100, u"Страны и регионы"))
+
 class BinaryCharField(models.Field):
     def __init__(self, *args, **kwargs):
         super(BinaryCharField, self).__init__(*args, **kwargs)
@@ -93,10 +89,7 @@ class TreeClassify(models.Model):
          help_text=u"Указывает, что данный раздел является псевдонимом раздела с указанным ID"
     )
     iSectionType = models.SmallIntegerField(
-        choices = ((1, u"Товары"),
-                   (50, u"ОКВЭД"),
-                   (67, u"Отрасли и сферы деятельности"),
-                   (100, u"Страны и регионы")),
+        choices = SECTION_TYPE,
         default = 1,
         db_index = True,
         unique = False,

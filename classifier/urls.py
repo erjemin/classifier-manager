@@ -32,6 +32,8 @@ urlpatterns = [
     url( r'^recheck', views.recheck ),
     url( r'^alias-manager', views.aliasmanager ),
     url( r'^alias-marker', views.aliasmarker ),
+    url( r'^glukalo_1', views.glukalo1 ),
+    url( r'^glukalo_2', views.glukalo2 ),
     #url( r'^admin/doc/', include('django.contrib.admindocs.urls') ),
 
     #url(r'^admin/', admin.site.urls),
