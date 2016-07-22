@@ -97,6 +97,7 @@ class TreeClassify(models.Model):
         verbose_name = u"Даный раздел относится к данному типу"
     )
     # вообще-то это поле должно быть не посто VARCHAR(64) а VARCHAR(64) BINARY
+    # работает и без этого, но если очень много разделов на одном уровне то бывают проблемы
     # делаем в базе команду
     # ALTER TABLE classifier_treeclassify MODIFY sbSortTree VARCHAR BINARY NOT NULL;
     # или через интерфейсы рефакторинга в dbFofge
@@ -118,7 +119,7 @@ class TreeClassify(models.Model):
     )
 
     def __unicode__(self):
-        return u"%5d: %s → %s" % (self.id, self.kParent, self.sSectionName_ru )
+        return u"%5d: %s (→%5d)" % (self.id, self.sSectionName_ru, self.kParent_id )
 
     class Meta:
         verbose_name = u"Катаолог товаров"

@@ -67,7 +67,7 @@ def index (request) :
     dimention_to_template.update({ 'TREE_VARIANT': TreeVariant })
     # вывод дерева
 
-    queryTree = TreeClassify.objects.order_by('iSectionType').order_by('sbSortTree') #.filter(iNesting=0)
+    queryTree = TreeClassify.objects.order_by('iSectionType', 'sbSortTree') #.filter(iNesting=0)
     dimention_to_template.update({'NUM_T': queryTree.count()})
     TreeData = []
     maxNest = 0
@@ -117,6 +117,7 @@ def index (request) :
     response.set_cookie("NumVisit",  NumViz, max_age=604800) ## ставим или перезаписывем куки (неделя)
     return response
 
+
 # Сортировка и исправление даннх в веточке дерева (для рекурсивной сортировки деревьев)
 def hlop_hlop ( parentID, parentNESTING, parentCHAIN, sorter, sectionType ):
     query = TreeClassify.objects.filter(kParent_id=parentID).order_by('sSectionName_ru')
@@ -146,7 +147,7 @@ def recheck (request):
     template = "informer.html" # шаблон
     # dimention_to_template.update({'SOMETHING_DO_WITH_ID': 0})
     if request.method == 'POST':
-        queryTree = TreeClassify.objects.filter(kParent_id=None).order_by('sSectionName_ru')
+        queryTree = TreeClassify.objects.filter(kParent_id=None).order_by('iSectionType', 'sSectionName_ru')
         iteration = 0
         for count in queryTree:
             count.iNesting = 0
@@ -175,7 +176,7 @@ def add_to_root (request):
     dimention_to_template.update({'SOMETHING_DO_WITH_ID': 0})
     if request.method == 'POST':
         if 'category_to_root' in request.POST and 'SectionType' in request.POST:
-            print request.POST['SectionType']
+            # print request.POST['SectionType']
             AddSection = TreeClassify(
                 sSectionName_ru=request.POST['category_to_root'],
                 sSectionName_trans=GetSlug(request.POST['category_to_root']),
@@ -264,17 +265,17 @@ def del_part_and_subpart (request):
                     # нужно не забыть дропнуть алиасы назначенные на удаляемые подразделы
                     try:
                         qDropAlias = TreeClassify.objects.filter(kAlias_id=count.id)
-                        print u"удалили id:", count.id
+                        # print u"удалили id:", count.id
                         count.delete()
                         for wAli in qDropAlias:
                             wAli.kAlias_id = None
                             toMark += "%d," % wAli.id
-                            print u"сняли алиас с id:", wAli.id
+                            # print u"сняли алиас с id:", wAli.id
                             wAli.save()
                         children.append(count.id)
                     except:
                         pass
-                print toMark
+                # print toMark
                 dimention_to_template.update({'MSG': u"Удалили нафиг ID «%s»" % children})
                 dimention_to_template.update({'SOMETHING_DEL': children})
                 dimention_to_template.update({'SOMETHING_DO_WITH_ID': toMark[:-1]})
@@ -568,8 +569,8 @@ def glukalo2 (request):
 
 
     # перебор видов деревьев
-    for i in SECTION_TYPE:
-        print i[0]
+    # for i in SECTION_TYPE:
+    #     print i[0]
 
     Data = []
     queryTree = TreeClassify.objects.order_by('iSectionType').order_by('sbSortTree') #.filter(iNesting=0)
