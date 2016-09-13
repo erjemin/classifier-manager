@@ -23,16 +23,18 @@
 
 <link href="{% static 'css/base.css' %}" rel="stylesheet" type="text/css"  />
 {% block Top_CSS1 %}{% endblock %}{% block Top_CSS2 %}{% endblock %}{% block Top_CSS3 %}{% endblock %}
+
 <script src="//code.jquery.com/jquery-2.1.1.min.js" type="text/javascript"></script>
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" type="text/javascript"></script>
 <script src="//code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script>
 {% block Top_JS1 %}{% endblock %}{% block Top_JS2 %}{% endblock %}{% block Top_JS3 %}{% endblock %}
 <script type="text/javascript">
 	function open_worker() { // функция взова и опрделения свойств воркера для асинхронности интерфейса.
-		window.open(
+		var newWin = window.open(
 						'about:blank',
 						'worker',
 						'width=200,height=200,menubar=no,toolbar=no,location=no,resizable=no,scrollbars=no');
+		return newWin;
 	};
 	function addSP(tt) {
 		var id = Number($('#'+$(tt).parent().parent().attr('id')+' .num').text());
@@ -210,8 +212,12 @@
 <div class="row col-md-12">
 	<div class="col-md-11">
 		<h5>
-			Товарных разделов: {{ NUM_T }} ├┼┤ Разделов ОКВЭД: 0 {# ├┼┼┼┼┼┼┼┤ MAKE_LIGHT #}
+			Всего категорий: {{ NUM_T }} {# ├┼┼┼┼┼┼┼┤ MAKE_LIGHT #}
 			<div style="float: right">
+				<a href="/trans" class="btn btn-info btn-xs"><b
+								class="glyphicon glyphicon-sunglasses"></b> К переводу на иностранные языки</a>
+				<a href="http://185.98.87.9/api/RebuildCategoryTree" target="worker" class="btn btn-default btn-xs"><b
+								class="glyphicon glyphicon-export" onclick="open_worker();"></b> Отправить на каракатицу</a>
 				<a href="#" data-toggle="modal" data-target="#ModalReCheck" class="btn btn-default btn-xs"><b
 								class="glyphicon glyphicon-sort-by-attributes"></b> Перестроить Сортер, Цепи и Слэги и т.п.</a>
 				<a href="#" data-toggle="modal" data-target="#ModalAddToRoot" class="btn btn-default btn-xs"><b
@@ -352,7 +358,7 @@ end	</pre>
 		      {% csrf_token %}
 		      <input type='hidden' name='DelSectionID' id='DelSectionID' />
 					<div class="input-group has-warning">
-						<span class="input-group-addon"><i class="glyphicon glyphicon-leaf"></i></span>
+						<span class="input-group-addon"><i class="glyphicon glyphicon-trash"></i></span>
 						<input type="text" class="form-control" name="yes_del_parts" placeholder="Напиши «ДА» или «YES» и удалишь категорию и подкатегории.">
 						<span class="input-group-btn">
               <button class="btn btn-warning" type="submit" onclick="open_worker();" >Удалить нафик!</button>

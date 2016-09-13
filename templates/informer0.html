@@ -1,0 +1,76 @@
+<!DOCTYPE html>{% load staticfiles %}
+<html lang="ru">
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="content-language" content="ru" />
+	<meta http-equiv="Date" content="{% block Date4Meta %}{% now "c" %}{% endblock %}" />
+	<meta http-equiv="Last-Modified" content="{% block Last4Meta %}{% now "c" %}{% endblock %}" />
+	<meta http-equiv="Expires" content="{% block Expires4Meta %}{% now "c" %}{% endblock %}" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="description" content="ИНФОРМЕР" />
+	<meta name="keywords" content="" />
+	<meta name="author" content="Sergi Erjemin" />
+	<meta name="copyright" lang="ru" content="Sergei Erjemin" />
+	<meta name="robots" content="index,follow" />
+	<meta name="document-state" content="Dynamic" />
+	<meta name="generator" content="TreeClassify 0.1β by Python/Django" />
+	<title>ИНФОРМЕР</title>
+</head>
+<body>
+
+
+<style>
+.vcenter {
+  display: table;
+  width: 100%;
+  height: 180px;
+  text-align: center;
+}
+.vcenter div { /* для IE8+ */
+  display: table-cell;
+  vertical-align: middle;
+}
+.vcenter div:nth-child(2) { /* не менее высоты родителя */
+  background: #9F9;
+}
+</style>
+
+<script type="text/javascript">
+{#  if ( confirm("Буду долго думать! Фигачить? ") ) {#}
+{#	{%  if SOMETHING_DO_WITH_ID > 0 %}#}
+{#		   var sps = "{{ SOMETHING_DO_WITH_ID }}".split(',');#}
+{#		   var ancor = 100000000000000;#}
+{#		   sps.forEach(function(item, i, sps) {#}
+{#			   if (Number(item) != 0 && Number(item) < ancor) ancor = Number(item);#}
+{#		   });#}
+{#		   //alert(ancor);#}
+{#		  {% if SOMETHING_MAKE_AS_AKA %}#}
+{#			  setTimeout("window.opener.document.location.href='/alias-manager?to_do={{ SOMETHING_DO_WITH_ID }}&to_aka={{ SOMETHING_MAKE_AS_AKA }}#z" + ancor + "'", 100);#}
+{#				{% else %}#}
+{#			  setTimeout("window.opener.document.location.href='/alias-manager?to_do={{ SOMETHING_DO_WITH_ID }}#z" + ancor + "'", 100);#}
+{#			{% endif %}#}
+{#		{% else %}#}
+{#			setTimeout("window.opener.document.location.href='/alias-manager#z" + ancor + "'", 100);#}
+{#	{% endif %}#}
+{#  };#}
+	// setTimeout("window.opener.document.location.href='/?to_do={{ SOMETHING_DO_WITH_ID }}'", 2000);
+	setTimeout("window.opener.document.location.href='/trans'", 2000);
+	setTimeout("document.getElementById('may_be').innerHTML='Кажется…'", 1500);
+	setTimeout("window.close();", 7000);
+</script>
+
+<div class="vcenter">
+  <div>
+	  <h3>ОЧЕНЬ ДОЛГО ДУМАЮ…</h3>
+	  <p>{{ MSG }} :: {{ SOMETHING_DO_WITH_ID }} :: {{ SOMETHING_DEL }}</p>
+
+	  <p id="may_be" style="font-size:x-small;"></p>
+    <p>time: {{ TAU|floatformat:4  }} сек.</p>
+  </div>
+</div>
+
+
+</body>
+
+</html>

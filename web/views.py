@@ -11,7 +11,7 @@ from django import forms
 from django.http import HttpResponse, Http404, response, request
 from django.shortcuts import render, HttpResponseRedirect
 # from django.core.context_processors import csrf
-from classifier.models import TreeClassify
+from classifier.models import TreeClassify, LangMatch
 from django.contrib.auth.decorators import login_required
 from django.db import connection
 from time import clock
@@ -161,7 +161,7 @@ def recheck (request):
             #     u"|\tцепочка:", count.lParentChain, \
             #     u"|\tюнисортер:", count.sbSortTree, \
             #     u"|\tтип_дерева:", count.iSectionType
-            hlop_hlop(  count.id, count.iNesting, count.lParentChain, count.sbSortTree, count.iSectionType )
+            hlop_hlop( count.id, count.iNesting, count.lParentChain, count.sbSortTree, count.iSectionType )
             iteration += 1
     dimention_to_template.update({'TAU': float(clock()-tStart)})
     response = render (request, template, dimention_to_template)
@@ -188,6 +188,15 @@ def add_to_root (request):
             AddSection.save()
             AddSection.lParentChain=AddSection.id
             AddSection.save()
+            # добавляем новую RUS-пару в LangMatch как активную
+            item = LangMatch (kTreeClassify_id = AddSection.id,
+                              sLangType = 'RUS',
+                              sSectionNameForeign = AddSection.sSectionName_ru,
+                              bSectionTranslateActual = True,
+                              bSectionMastTranslate = False,
+                              bSectionMastCheck = False,
+                              sSectionNameSlug = AddSection.sSectionName_trans)
+            item.save()
             # а теперь надо все дерево пересортировать (долго и нудно) как в recheck
             # queryTree = TreeClassify.objects.filter(kParent_id=None).order_by('sSectionName_ru')
             # iteration = 0
@@ -231,6 +240,15 @@ def add_subpart (request):
                 AddRec.save()
                 AddRec.lParentChain=q.lParentChain+','+str(AddRec.id)
                 AddRec.save()
+                # добавляем новую RUS-пару в LangMatch как активную
+                item = LangMatch (kTreeClassify_id = AddRec.id,
+                                  sLangType = 'RUS',
+                                  sSectionNameForeign = AddRec.sSectionName_ru,
+                                  bSectionTranslateActual = True,
+                                  bSectionMastTranslate = False,
+                                  bSectionMastCheck = False,
+                                  sSectionNameSlug = AddRec.sSectionName_trans)
+                item.save()
                 toMark += ','+str(AddRec.id)
             # а теперь надо пересортировать все что относится к робителю, в которого прилетели подразделы
             hlop_hlop(  q.id, q.iNesting, q.lParentChain, q.sbSortTree, q.iSectionType )
@@ -262,16 +280,22 @@ def del_part_and_subpart (request):
                 P = TreeClassify.objects.filter(lParentChain__istartswith=R.lParentChain)
                 # P = TreeClassify.objects.all()
                 for count in P:
-                    # нужно не забыть дропнуть алиасы назначенные на удаляемые подразделы
                     try:
+                        # помечаем для удаленной записи пары в LangMatch как архивные (для всех языков)
+                        LM = LangMatch.objects.filter(kTreeClassify_id = count.id, bSectionTranslateActual = True)
+                        for i in LM:
+                            i.bSectionTranslateActual = False
+                            i.save()
+                        # удаляем алиасы назначенные на удаляемый подраздел
                         qDropAlias = TreeClassify.objects.filter(kAlias_id=count.id)
-                        # print u"удалили id:", count.id
-                        count.delete()
                         for wAli in qDropAlias:
                             wAli.kAlias_id = None
                             toMark += "%d," % wAli.id
                             # print u"сняли алиас с id:", wAli.id
                             wAli.save()
+                        # удаляем категорию
+                        # print u"удалили id:", count.id
+                        count.delete()
                         children.append(count.id)
                     except:
                         pass
@@ -307,6 +331,20 @@ def edt_part (request):
             R.sSectionName_ru = name
             R.sSectionName_trans = GetSlug(name)
             R.save()
+            # помечаем старые пары в LangMatch как архивные (для всех языков)
+            P = LangMatch.objects.filter(kTreeClassify_id = R.id, bSectionTranslateActual = True)
+            for i in P:
+                i.bSectionTranslateActual = False
+                i.save()
+            # добавляем новую RUS-пару в LangMatch как активную
+            item = LangMatch (kTreeClassify_id = R.id,
+                              sLangType = 'RUS',
+                              sSectionNameForeign = R.sSectionName_ru,
+                              bSectionTranslateActual = True,
+                              bSectionMastTranslate = False,
+                              bSectionMastCheck = False,
+                              sSectionNameSlug = R.sSectionName_trans)
+            item.save()
             # а теперь надо пересортировать все что относится к родителю, в котолром переименовали раздел
             # а перед этим найти этого родителя
             Rec = TreeClassify.objects.get(id=R.kParent_id)

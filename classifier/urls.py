@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+# Р’РєР»СЋС‡РёР»Рё РїРѕРґРґРµСЂР¶РєСѓ UTF-8 РІ Python. Р‘РµР· СЌС‚РѕРіРѕ РґР°Р¶Рµ РєРѕРјРјРµРЅС‚Р°СЂРёРё РЅР° СЂСѓСЃСЃРєРѕРј СЏР·С‹РєРµ РЅРµР»СЊР·СЏ РїРёСЃР°С‚СЊ.
+# Р� РЅРµ Р·Р°Р±С‹РІР°РµС‚ СЃР»РµРґСѓСЋС‰РёС… РїСЂРѕСЃС‚С‹С… РїСЂР°РІРёР»:
+# 1. РџРѕРјРµС‰Р°РµРј РѕРїРµСЂР°С‚РѕСЂ u РїРµСЂРµРґ РєР°Р¶РґРѕР№ СЃС‚СЂРѕРєРѕР№, РєРѕС‚РѕСЂР°СЏ СЃРѕРґРµСЂР¶РёС‚ СЃРёРјРІРѕР»С‹ РЅРµ РёР· РєРѕРґРёСЂРѕРІРєРё ascii.
+# 2. РџСЂРё РѕР±СЂР°Р±РѕС‚РєРµ РІС…РѕРґСЏС‰РёС… Р·Р°РїСЂРѕСЃРѕРІ РїСЂРѕРІРµСЂСЏРµРј РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ request.encoding = "UTF-8"
+# 3. Р�СЃРїРѕР»СЊР·СѓРµРј ugettext РєР°Рє РїСЃРµРІРґРѕРЅРёРј РґР»СЏ _
+# 4. Р’ РјРµС‚РѕРґР°С… СЃ РїР°СЂР°РјРµС‚СЂР°РјРё РІ РІРёРґРµ Р±Р°Р№С‚РѕРІРѕР№ СЃС‚СЂРѕРєРё (РЅР°РїСЂРёРјРµСЂ, quote() РёР»Рё hashlib.sha224())
+#    РЅРµ Р·Р°Р±С‹РІР°РµРј РїСЂРёРІРµСЃС‚Рё РµРµ РІ С„РѕСЂРјР°С‚ unicode: theunicodestring.encode("utf-8")
 """classifier URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -16,7 +24,7 @@ Including another URLconf
 from django.conf.urls import patterns, include, url
 
 from django.contrib import admin
-from web import views
+from web import views, trans
 
 urlpatterns = [
     url( r'^admin/', include(admin.site.urls) ),
@@ -28,12 +36,21 @@ urlpatterns = [
     url( r'^edt_part$', views.edt_part ),
     url( r'^autocomplete_sect$', views.autocomplete_sect ),
     url( r'^edt_make_alias$', views.edt_make_alias ),
-    url( r'^move_subpart', views.move_subpart ),
-    url( r'^recheck', views.recheck ),
-    url( r'^alias-manager', views.aliasmanager ),
-    url( r'^alias-marker', views.aliasmarker ),
-    url( r'^glukalo_1', views.glukalo1 ),
-    url( r'^glukalo_2', views.glukalo2 ),
+    url( r'^move_subpart$', views.move_subpart ),
+    url( r'^recheck$', views.recheck ),
+    url( r'^alias-manager$', views.aliasmanager ),
+    url( r'^alias-marker$', views.aliasmarker ),
+    url( r'^glukalo_1$', views.glukalo1 ),
+    url( r'^glukalo_2$', views.glukalo2 ),
+    # СЂР°Р±РѕС‚Р° СЃ РёРЅС‚РµСЂС„РµР№СЃРѕРј РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ Р°РіРµРЅС‚СЃС‚РІРѕРј РїРµСЂРµРІРѕРґРѕРІ
+    url( r'^trans$', trans.trans ),
+    url( r'^trans/make-(?P<LANG>\w{3})-table$', trans.make_LANG_table ),
+    url( r'^trans/update-(?P<LANG>\w{3})-table$', trans.make_update_LANG_table ),
+    url( r'^trans/2check-(?P<LANG>\w{3})-table$', trans.make_2check_LANG_table ),
+    url( r'^trans/add-new-(?P<LANG>\w{3})-empty-items$', trans.add_new_LANG_empty_items ),
+    url( r'^trans/get_old$', trans.get_old ),
+    url( r'^trans/make-double-as-not-relevant$', trans.make_double_as_not_relevant ),
+    url( r'^trans/service$', trans.service ),
     #url( r'^admin/doc/', include('django.contrib.admindocs.urls') ),
 
     #url(r'^admin/', admin.site.urls),

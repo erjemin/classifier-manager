@@ -62,9 +62,10 @@ pre .glyphicon-info-sign {
 	transition: 0.1s  !important;
 }
 .ui-menu-item:not(:hover) { transition:1s !important; }
-.draggable {
+
+.ui-draggable-handle {
 	z-index: 100000 !important;
 	font-family: monospace !important;
 	border: none !important;
-
+	white-space: pre !important;
 }

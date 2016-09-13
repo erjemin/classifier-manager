@@ -1,0 +1,93 @@
+<!DOCTYPE html>{% load staticfiles %}{% load static %}
+<html lang="ru">
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="content-language" content="ru" />
+	<meta http-equiv="Date" content="{% block Date4Meta %}{% now "c" %}{% endblock %}" />
+	<meta http-equiv="Last-Modified" content="{% block Last4Meta %}{% now "c" %}{% endblock %}" />
+	<meta http-equiv="Expires" content="{% block Expires4Meta %}{% now "c" %}{% endblock %}" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="description" content="{% block Description %}{% endblock %}" />
+	<meta name="keywords" content="{% block Keywords %}{% endblock %}" />
+	<meta name="author" content="Sergi Erjemin{% block Author4Meta %}{% endblock %}" />
+	<meta name="copyright" lang="ru" content="Sergei Erjemin{% block CopyrightAuthor4Meta %}{% endblock %}" />
+	<meta name="robots" content="index,follow" />
+	<meta name="document-state" content="{{ META_DOCUMENT_STATE|default:"Dynamic" }}" />
+	<meta name="generator" content="TreeClassify 0.1β by Python/Django" />
+	<title>classifier-manager DEMO: Тут растут деревья</title>
+</head>
+<link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+<!--link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" / -->
+<link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css" />
+
+<link href="{% static 'css/base.css' %}" rel="stylesheet" type="text/css"  />
+{% block Top_CSS1 %}{% endblock %}{% block Top_CSS2 %}{% endblock %}{% block Top_CSS3 %}{% endblock %}
+
+<script src="//code.jquery.com/jquery-2.1.1.min.js" type="text/javascript"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="//code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script>
+{% block Top_JS1 %}{% endblock %}{% block Top_JS2 %}{% endblock %}{% block Top_JS3 %}{% endblock %}
+<script type="text/javascript">
+	function open_worker() { // функция взова и опрделения свойств воркера для асинхронности интерфейса.
+		var newWin = window.open(
+						'about:blank',
+						'worker',
+						'width=200,height=200,menubar=no,toolbar=no,location=no,resizable=no,scrollbars=no');
+		return newWin;
+	};
+</script>
+
+<body>
+
+<div class="row col-md-12">
+	<div class="col-md-10">
+    <h1>classifier-translator (управление классифайд-переводами)</h1>
+	</div>
+</div>
+
+<div class="row col-md-12">
+	<div class="col-md-11">
+		<h5>
+			Всего категорий: {{ NUM_T }} {# ├┼┼┼┼┼┼┼┤ MAKE_LIGHT #}
+			<div style="float: right">
+				<a href="/" class="btn btn-info btn-xs"><b
+								class="glyphicon glyphicon-tree-deciduous"></b> К менеджеру категорий</a>
+			</div>
+		</h5>
+	</div>
+
+  <div class="col-md-1 notes" style="float: right;">
+		<h5>Служебное:</h5>
+		<p>
+			<nobr><i class="glyphicon glyphicon-eye-open"></i> — {{ NV }}</nobr><br/>
+			<nobr><i class="glyphicon glyphicon-fire"></i> — {{ TAU|floatformat:"-5" }} cек.</nobr><br/>
+			<!-- ■ Ταυ: <br / -->
+	    &nbsp;<br />
+		  <a href="/alias-manager" class="btn btn-default btn-xs">Alias-менеджер</a><br />
+		  &nbsp;<br />
+		  <a href="/glukalo_1" class="btn btn-default btn-xs">Глюкало №1</a><br />
+		  &nbsp;<br />
+		  <a href="/glukalo_2" class="btn btn-default btn-xs">Глюкало №2</a><br />
+		</p>
+	</div>
+
+	<div class="col-md-11">
+		<pre style="line-height: 250%">{% for i in LANG_WORKER %}<div style="font-weight:900;background-color: lightgray;"><big style="font-size: x-large;color:purple;">{{ i.LANGUAGE_CODE|ljust:"3" }}:</big> {{ i.LANGUAGE_NAME }}</div>ВСЕГО: {{ i.ITEM_TOTAL|ljust:"5" }} | АКТУАЛЬНЫХ:<sup style="background-color:lightgreen;">{{ i.ITEM_ACTUAL_N|rjust:"5" }}</sup><sub style="background-color:coral;">{{ i.ITEM_UNACTUAL_N|ljust:"5" }}</sub> | ДЕАКТИВИРОВАТЬ ДУБЛИ: {{ i.ITEM_PAIR|default:0|ljust:"5" }} <a href="/trans/make-double-as-not-relevant?lang={{ i.LANGUAGE_CODE }}" class="glyphicon glyphicon-trash btn btn-default btn-xs" title="Все дубли помеченые как активные будут деактивированы" onclick="open_worker();" target="worker"></a> | НОВЫЕ (требуют перевода): {{ i.ITEM_NEW|default:"0"|ljust:"5" }}
+<a href="/trans/add-new-{{ i.LANGUAGE_CODE }}-empty-items" onclick="open_worker();" target="worker" class="btn btn-{% if i.LANGUAGE_CODE = 'RUS' and i.ITEM_NEW != 0 %}danger{% elif i.LANGUAGE_CODE != 'RUS' and i.ITEM_NO_ADD_TO_TRANSLATE != 0 %}danger{% else %}default{% endif %} btn-xs"><b class="glyphicon glyphicon-leaf"></b> {% if i.LANGUAGE_CODE != 'RUS' %}{{ i.ITEM_NO_ADD_TO_TRANSLATE|stringformat:"05d" }}{% else %}{{ i.ITEM_NEW|stringformat:"05d" }}{% endif %}</a> <a href="/trans/make-{{ i.LANGUAGE_CODE }}-table" class="btn btn-default btn-xs" onclick="open_worker();" target="worker"><b	class="glyphicon glyphicon-list"></b> Создать {% if i.LANGUAGE_CODE == 'RUS' %}чистый{% else %}полный{% endif %} {{ i.LANGUAGE_CODE|ljust:"3" }}-CSV для CAT-системы TR-Publish</a>{% if i.FULL_FILE_SIZE != 0 %} <a href="{% static i.FILENAME_FULL_CLASSIFIER_4TRBUB %}" class="btn btn-default btn-xs"><b
+								class="glyphicon glyphicon-download-alt"></b> Скачать {% if i.LANGUAGE_CODE == 'RUS' %}чистый{% else %}полный{% endif %} {{ i.LANGUAGE_CODE|ljust:"3" }}-CSV для CAT-системы TR-Publish <small>({{ i.FULL_FILE_DATATIME|date:"d-M-Y H:i:s" }} - {{ i.FULL_FILE_SIZE|filesizeformat }})</small></a>{% endif %}{% if i.LANGUAGE_CODE != 'RUS' %}
+          <a style="margin-left: -1px" href="/trans/update-{{ i.LANGUAGE_CODE }}-table" class="btn btn-default btn-xs" onclick="open_worker();" target="worker"><b	class="glyphicon glyphicon-list"></b> Создать update {{ i.LANGUAGE_CODE|ljust:"3" }}-CSV для CAT-системы TR-Publish</a> {% if i.UPDATE_FILE_SIZE != 0 %}<a href="{% static i.FILENAME_UPDATE_CLASSIFIER_4TRBUB %}" class="btn btn-default btn-xs"><b class="glyphicon glyphicon-download-alt"></b> Скачать update {{ i.LANGUAGE_CODE|ljust:"3" }}-CSV для CAT-системы TR-Publish <small>({{ i.UPDATE_FILE_DATATIME|date:"d-M-Y H:i:s" }} - {{ i.UPDATE_FILE_SIZE|filesizeformat }})</small></a>{% endif %}
+          <a style="margin-left: -1px" href="/trans/2check-{{ i.LANGUAGE_CODE }}-table" class="btn btn-default btn-xs" onclick="open_worker();" target="worker"><b	class="glyphicon glyphicon-list"></b> Создать 2check {{ i.LANGUAGE_CODE|ljust:"3" }}-CSV для CAT-системы TR-Publish</a> {% if i.CHECK_FILE_SIZE != 0 %}<a href="{% static i.FILENAME_2CHECK_CLASSIFIER_4TRBUB %}" class="btn btn-default btn-xs"><b class="glyphicon glyphicon-download-alt"></b> Скачать 2check {{ i.LANGUAGE_CODE|ljust:"3" }}-CSV для CAT-системы TR-Publish <small>({{ i.UPDATE_FILE_DATATIME|date:"d-M-Y H:i:s" }} - {{ i.CHECK_FILE_SIZE|filesizeformat }})</small></a>{% endif %}{% endif %}
+
+{% endfor %}-
+end
+<a href="/trans/service" class="btn btn-default btn-xs" onclick="open_worker();" target="worker">Сервисные работы</a>  <a href="/trans/get_old" class="btn btn-warning btn-xs" onclick="open_worker();" target="worker"><b
+								class="glyphicon glyphicon-alert"></b> Отфигачить старый CSV <small>(~10 мин.)</small></a>
+</pre>
+
+	</div>
+</div>
+
+
+</body>
+</html>
