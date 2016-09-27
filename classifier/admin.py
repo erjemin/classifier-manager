@@ -13,7 +13,7 @@ __author__ ='Sergei Erjemin'
 
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin, TabularInline
-from classifier.models import TreeClassify, LangMatch
+from classifier.models import TreeClassify, LangMatch, dataPulscen
 
 
 
@@ -34,3 +34,11 @@ class LangMatchAdmin (ModelAdmin):
                     'bSectionTranslateActual', 'dSectionTranslateCreate', 'dSectionTranslateModify', )
     list_filter = ('bSectionTranslateActual', 'sLangType',  )
 admin.site.register(LangMatch, LangMatchAdmin)
+
+class dataPulscenAdmin (ModelAdmin):
+    search_fields = ['pul_name', 'pul_category', 'pul_description', 'pul_properties', 'id', 'pul_ext_id', 'pul_price', ]
+    ordering = ('id', 'pul_ext_id', )
+    list_display = ('id', 'pul_ext_id', 'pul_name', 'pul_category', 'pul_price',
+                    'pul_price_currency', 'pul_price_unit' )
+    list_filter = ('pul_price_currency', 'pul_price_unit',  )
+admin.site.register(dataPulscen, dataPulscenAdmin)

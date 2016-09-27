@@ -109,7 +109,12 @@ class LangMatch(models.Model):
         verbose_name_plural = u"Языковые соответсвия (переводы)"
         ordering = ['bSectionTranslateActual', 'sLangType', 'id', ]   # назанчить ordering при ForeignKey просто так нельзя. Только через _id
 
-
+    # def save(self, *args, **kwargs):
+    #     ''' При сохранении обновить timestamps '''
+    #     if not self.id:
+    #         self.dSectionTranslateCreate = timezone.now()
+    #     self.dSectionTranslateModify = timezone.now()
+    #     return super(LangMatch, self).save(*args, **kwargs)
 
 
 
@@ -125,6 +130,8 @@ class BinaryCharField(models.Field):
         super(BinaryCharField, self).__init__(*args, **kwargs)
     def db_type(self, connection):
         return 'varchar(64) binary'
+
+
 #####################################################
 #####################################################
 # таблица ДЕРЕВО-КЛАССИКАТОР
@@ -224,5 +231,165 @@ class TreeClassify(models.Model):
     class Meta:
         verbose_name = u"Катаолог товаров"
         verbose_name_plural = u"Каталог товаров"
-        ordering = ['sbSortTree', 'id', 'kParent_id', 'sSectionName_ru']   # назанчить ordering при ForeignKey просто так нельзя. Только через _id
+        ordering = ['sbSortTree', 'id', 'kParent_id', 'sSectionName_ru']   # назанчить ordering при ForeignKey просто
+                                                                           # так нельзя. Только через _id
 
+
+#####################################################
+#####################################################
+# таблица КАРОТОЧКИ ТОВАРОВ ПУЛЬС ЦЕН
+class dataPulscen(models.Model):
+    id = models.AutoField( # id
+        primary_key=True,
+        db_column = "pul_id", # имя поле в талице базы данных
+        null=False,
+        unique=True,
+        db_index=True,
+        verbose_name=u"id",
+        help_text=u"id"
+    )
+    par_id = models.PositiveIntegerField( # id парсера
+        db_column = "par_id", # имя поле в талице базы данных
+        null=False,
+        verbose_name=u"ID парсера",
+        help_text=u"ID парсера"
+    )
+    pul_added = models.DateTimeField( # Дата добавленния
+        db_column = "pul_added", # имя поле в талице базы данных
+        null=False,
+        auto_now_add=True,
+        verbose_name=u"Дата добавленния",
+        help_text=u"Дата добавленния"
+    )
+    pul_int_id = models.PositiveIntegerField( # id c нашего сайта
+        db_column = "pul_int_id", # имя поле в талице базы данных
+        null=False,
+        default=0,
+        db_index=True,
+        verbose_name=u"id c нашего сайта",
+        help_text=u"id c нашего сайта"
+    )
+    pul_export_datetime = models.DateTimeField( # Дата-время экспорта
+        db_column = "pul_export_datetime", # имя поле в талице базы данных
+        null=False,
+        default=0,
+        verbose_name=u"Дата-время экспорта",
+        help_text=u"Дата-время экспорта"
+    )
+    com_id = models.PositiveIntegerField( # ID компании в таблице data_company
+        db_column = "com_id", # имя поле в талице базы данных
+        null=False,
+        default=0,
+        db_index=True,
+        verbose_name=u"ID компании в таблице data_company",
+        help_text=u"ID компании в таблице data_company"
+    )
+    pul_ext_id = models.CharField( # ID с внешнего сайта
+        db_column = "pul_ext_id", # имя поле в талице базы данных
+        max_length=100,
+        null=False,
+        db_index=True,
+        unique=True,
+        verbose_name=u"ID с внешнего сайта",
+        help_text=u"ID с внешнего сайта"
+    )
+    pul_ext_url = models.CharField( # URL с внешнего сайта
+        db_column = "pul_ext_url", # имя поле в талице базы данных
+        max_length=255,
+        null=False,
+        verbose_name=u"URL с внешнего сайта",
+        help_text=u"URL с внешнего сайта"
+    )
+    pul_category = models.CharField( # Категория
+        db_column = "pul_category", # имя поле в талице базы данных
+        max_length=255,
+        null=False,
+        verbose_name=u"Категория",
+        help_text=u"Категория внешнего сайта"
+    )
+    pul_name = models.CharField( # Название товара
+        db_column = "pul_name", # имя поле в талице базы данных
+        max_length=255,
+        null=False,
+        verbose_name=u"Название товара",
+        help_text=u"Название товара"
+    )
+    pul_min = models.CharField( # Минимальная партия
+        db_column = "pul_min", # имя поле в талице базы данных
+        max_length=100,
+        null=False,
+        verbose_name=u"Минимальная партия",
+        help_text=u"Минимальная партия"
+    )
+    pul_payment = models.CharField( # Условия оплаты
+        db_column = "pul_payment", # имя поле в талице базы данных
+        max_length=255,
+        null=False,
+        verbose_name=u"Условия оплаты",
+        help_text=u"Условия оплаты"
+    )
+    pul_delivery = models.CharField( # Условия доставки
+        db_column = "pul_delivery", # имя поле в талице базы данных
+        max_length=255,
+        null=False,
+        verbose_name=u"Условия доставки",
+        help_text=u"Условия доставки"
+    )
+    pul_wholesale_retail = models.CharField( # Опт/розница
+        db_column = "pul_wholesale_retail", # имя поле в талице базы данных
+        max_length=100,
+        null=False,
+        verbose_name=u"Опт/розница",
+        help_text=u"Опт/розница"
+    )
+    pul_properties = models.TextField( # Характеристики
+        db_column = "pul_properties", # имя поле в талице базы данных
+        null=False,
+        verbose_name=u"Характеристики",
+        help_text=u"Характеристики"
+    )
+    pul_description = models.TextField( # Описание товара
+        db_column = "pul_description", # имя поле в талице базы данных
+        null=False,
+        verbose_name=u"Описание товара",
+        help_text=u"Описание товара"
+    )
+    pul_photos = models.TextField( # Пути к фотографиям (через ;)
+        db_column = "pul_photos", # имя поле в талице базы данных
+        null=False,
+        verbose_name=u"Пути к фотографиям (через ;)",
+        help_text=u"Пути к фотографиям (через ;)"
+    )
+    pul_photos_ext = models.TextField( # URLы фотографий (через ;)
+        db_column = "pul_photos_ext", # имя поле в талице базы данных
+        null=False,
+        verbose_name=u"URLы фотографий (через ;)",
+        help_text=u"URLы фотографий (через ;)"
+    )
+    pul_price = models.CharField( # Цена
+        db_column = "pul_price", # имя поле в талице базы данных
+        max_length=50,
+        null=False,
+        verbose_name=u"Цена",
+        help_text=u"Цена"
+    )
+    pul_price_currency = models.CharField( # Валюта
+        db_column = "pul_price_currency", # имя поле в талице базы данных
+        max_length=50,
+        null=False,
+        verbose_name=u"Валюта",
+        help_text=u"Валюта"
+    )
+    pul_price_unit = models.CharField( # Единица измерения
+        db_column = "pul_price_unit", # имя поле в талице базы данных
+        max_length=50,
+        null=False,
+        verbose_name=u"Единица измерения",
+        help_text=u"Единица измерения"
+    )
+
+    class Meta:
+        db_table = 'data_pulscen'  # имя таблицы в базе данных
+        verbose_name = u"Карточки ПульсЦен"
+        verbose_name_plural = u"Карточки ПульсЦен"
+        ordering = ['id', 'pul_name', 'pul_int_id', 'pul_ext_id']

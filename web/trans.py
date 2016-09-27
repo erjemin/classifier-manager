@@ -42,6 +42,9 @@ NOTR_STRING = u"-?-?-?-"
 
 def trans (request) :
     tStart = clock()
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}   # словарь, для передачи шаблону
     template = "trans.html" # шаблон
 
@@ -148,6 +151,9 @@ def trans (request) :
 # создание полной CSV-таблицы для перевода
 def make_LANG_table(request, LANG="ENG" ):
     tStart = clock()
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}   # словарь, для передачи шаблону
     template = "informer0.html" # шаблон
     # NumOfWords = 0 # счетчик слов
@@ -193,6 +199,9 @@ def make_LANG_table(request, LANG="ENG" ):
 # создание недавно добавленых и отредактированных элеменом в CSV-таблицу для перевода
 def make_update_LANG_table (request, LANG="ENG" ):
     tStart = clock()
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}   # словарь, для передачи шаблону
     template = "informer0.html" # шаблон
     with open(STATIC_BASE_PATH + u'/' + FILENAME_UPDATE_CLASSIFIER_4TRBUB_CSV + u"-" + LANG +'.csv', 'w') as file_csv:
@@ -240,6 +249,9 @@ def make_update_LANG_table (request, LANG="ENG" ):
 # создание недпано добавленых и отредактированных элеменом в CSV-таблицу для перевода
 def make_2check_LANG_table (request, LANG="ENG" ):
     tStart = clock()
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}   # словарь, для передачи шаблону
     template = "informer0.html" # шаблон
     with open(STATIC_BASE_PATH + u'/' + FILENAME_2CHECK_CLASSIFIER_4TRBUB_CSV + u"-" + LANG +'.csv', 'w') as file_csv:
@@ -289,6 +301,9 @@ def make_2check_LANG_table (request, LANG="ENG" ):
 #
 def add_new_LANG_empty_items (request, LANG="ENG" ):
     tStart = clock()
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}   # словарь, для передачи шаблону
     template = "informer0.html" # шаблон
     # NumOfWords = 0 # счетчик слов
@@ -360,6 +375,9 @@ def add_new_LANG_empty_items (request, LANG="ENG" ):
 # только при единовременномиспользовании, уже проделано и эту вьюку можно убить. Но для целостности путь останется.
 def get_old(request):
     tStart = clock()
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}   # словарь, для передачи шаблону
     template = "informer0.html" # шаблон
     with open(STATIC_BASE_PATH + '/' + FILENAME_OLD_CLASSIFIER_CSV, 'r') as file_csv:
@@ -423,6 +441,9 @@ def get_old(request):
 
 def make_double_as_not_relevant(request):
     tStart = clock()
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}   # словарь, для передачи шаблону
     template = "informer0.html" # шаблон
 
@@ -461,8 +482,15 @@ def service (request):
     tStart = clock()
     dimention_to_template = {}   # словарь, для передачи шаблону
     template = "informer0.html" # шаблон
-    n =  LangMatch.objects.filter(sLangType=u"ENG", sSectionNameForeign=NOTR_STRING).update(bSectionMastTranslate=True, bSectionMastCheck=False)
-    print n
+    # ОБНОВЛЕНИЕ ПАРОЛЯ СУПЕРПОЛЬЗОВАТЕЛЯ
+    from django.contrib.auth.models import User
+    # user = User.objects.get( username='nikolya_857')
+    user = User.objects.get( username='eserg')
+    # user.set_password("Nikolai857")
+    user.set_password("qwaseR12")
+    user.save()
+    # n =  LangMatch.objects.filter(sLangType=u"ENG", sSectionNameForeign=NOTR_STRING).update(bSectionMastTranslate=True, bSectionMastCheck=False)
+    # print n
     # n =  LangMatch.objects.filter(bSectionTranslateActual=False).update(bSectionMastTranslate=False, bSectionMastCheck=False)
     # print n
     # n =  LangMatch.objects.filter(sSectionNameForeign=NOTR_STRING).update(bSectionMastTranslate=True, bSectionMastCheck=False)

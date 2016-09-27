@@ -14,6 +14,7 @@ from django.shortcuts import render, HttpResponseRedirect
 from classifier.models import TreeClassify, LangMatch
 from django.contrib.auth.decorators import login_required
 from django.db import connection
+from django.utils import timezone
 from time import clock
 import httplib                                  # библиотека работы с HTTP (скачиваем ссылки и все такое)
 import json
@@ -29,6 +30,9 @@ import time
 
 def index (request) :
     tStart = clock()
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}   # словарь, для передачи шаблону
     template = "index.html" # шаблон
 
@@ -120,6 +124,9 @@ def index (request) :
 
 # Сортировка и исправление даннх в веточке дерева (для рекурсивной сортировки деревьев)
 def hlop_hlop ( parentID, parentNESTING, parentCHAIN, sorter, sectionType ):
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     query = TreeClassify.objects.filter(kParent_id=parentID).order_by('sSectionName_ru')
     iteration = 0
     for count in query:
@@ -143,6 +150,9 @@ def hlop_hlop ( parentID, parentNESTING, parentCHAIN, sorter, sectionType ):
 # Перезадать «Сортер», «Цепи» и «Слэги» и т.п.
 def recheck (request):
     tStart = clock()
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "informer.html" # шаблон
     # dimention_to_template.update({'SOMETHING_DO_WITH_ID': 0})
@@ -171,6 +181,9 @@ def recheck (request):
 # Добавление категории в корень
 def add_to_root (request):
     tStart = clock()
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "informer.html" # шаблон
     dimention_to_template.update({'SOMETHING_DO_WITH_ID': 0})
@@ -219,6 +232,9 @@ def add_to_root (request):
 # Добавление подкатегории к разделу
 def add_subpart (request):
     tStart = clock()
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "informer.html" # шаблон
     dimention_to_template.update({'SOMETHING_DO_WITH_ID': 0})
@@ -262,6 +278,9 @@ def add_subpart (request):
 # Удаление категории и всех ее подкатегорий
 def del_part_and_subpart (request):
     tStart = clock()
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "informer.html" # шаблон
     dimention_to_template.update({'SOMETHING_DEL': 0})
@@ -315,6 +334,9 @@ def del_part_and_subpart (request):
 # Изменение названия раздела
 def edt_part (request):
     tStart = clock()
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "informer.html" # шаблон
     dimention_to_template.update({'SOMETHING_DO_WITH_ID': 0})
@@ -360,6 +382,9 @@ def edt_part (request):
 # Сделать (или наоборот) подраздел как Alias и всяка хрень с этим связанная
 def edt_make_alias (request):
     tStart = clock()
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "informer.html" # шаблон
     dimention_to_template.update({'SOMETHING_DO_WITH_ID': 0})
@@ -398,6 +423,9 @@ def edt_make_alias (request):
 # Перенос категории и всех ее подкатегорий
 def move_subpart (request):
     tStart = clock()
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "informer.html" # шаблон
     dimention_to_template.update({'SOMETHING_DO_WITH_ID': ''})
@@ -418,6 +446,11 @@ def move_subpart (request):
             qMovableChildren = TreeClassify.objects.filter(lParentChain__startswith=oldMovableRoot)
             R.kParent_id = int(request.POST['AcceptorMoveSectionID'])
             R.save()
+            # помечаем в таблице переводов как требующие проверки соотвествующие разделы на всех яхыках (кроме 'RUS')
+            LangMatch.objects.filter(kTreeClassify_id=R.id,
+                                     bSectionMastTranslate=False,
+                                     bSectionTranslateActual=True).exclude(sLangType='RUS').update(bSectionMastCheck = True,
+                                                                                                   dSectionTranslateModify = timezone.now())
             for count in qMovableChildren:
                 toMark += "%d," % count.id
                 ## print u"child:", count.lParentChain, count.sSectionName_ru
@@ -425,6 +458,11 @@ def move_subpart (request):
                 count.lParentChain = chain
                 count.iNesting = len(list(chain.split(',')))-1
                 count.save()
+                # помечаем в таблице переводов как требующие проверки соотвествующие разделы на всех яхыках (кроме 'RUS')
+                LangMatch.objects.filter(kTreeClassify_id=count.id,
+                                     bSectionMastTranslate=False,
+                                     bSectionTranslateActual=True).exclude(sLangType='RUS').update(bSectionMastCheck = True,
+                                                                                                   dSectionTranslateModify = timezone.now())
 
             # а теперь надо пересортировать все что относится к новым родителям, в который переинесли раздел
             # а вот старых родителей можно не трогать. Как-нибудь само переиндексируется после
@@ -468,6 +506,9 @@ def autocomplete_sect (request):
 # Инструменты поиска алиасов
 def aliasmanager (request):
     tStart = clock()
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "aliaser.html" # шаблон
     MarkRowWithID = []
@@ -541,6 +582,9 @@ def aliasmanager (request):
 # Склеиватель алиасов в инструментах поиска алиасов
 def aliasmarker (request):
     tStart = clock()
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "informer1.html" # шаблон
     if request.method == 'POST':
@@ -566,6 +610,9 @@ def aliasmarker (request):
 # Глюкало, строит дерево с помощью Google Chats
 def glukalo1 (request):
     tStart = clock()
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "glukalo_1.html" # шаблон
 
@@ -597,6 +644,9 @@ def glukalo1 (request):
 # Глюкало, строит дерево с помощью Google Chats
 def glukalo2 (request):
     tStart = clock()
+    # проверка на аутентификацию
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "glukalo_2.html" # шаблон
     NumViz = 0 # как будто первый визит
@@ -626,4 +676,15 @@ def glukalo2 (request):
     dimention_to_template.update({'TAU': float(clock()-tStart)})
     response = render (request, template, dimention_to_template)
     response.set_cookie("NumVisit",  NumViz, max_age=604800) ## ставим или перезаписывем куки (неделя)
+    return response
+
+
+
+# Глюкало, строит дерево с помощью Google Chats
+def not_denice (request):
+    tStart = clock()
+    dimention_to_template = {}
+    template = "not_denice.html" # шаблон
+    dimention_to_template.update({'TAU': float(clock()-tStart)})
+    response = render (request, template, dimention_to_template)
     return response

@@ -1,0 +1,57 @@
+<!DOCTYPE html>{% load staticfiles %}{% load static %}
+<html lang="ru">
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="content-language" content="ru" />
+	<meta http-equiv="Date" content="{% block Date4Meta %}{% now "c" %}{% endblock %}" />
+	<meta http-equiv="Last-Modified" content="{% block Last4Meta %}{% now "c" %}{% endblock %}" />
+	<meta http-equiv="Expires" content="{% block Expires4Meta %}{% now "c" %}{% endblock %}" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="description" content="{% block Description %}{% endblock %}" />
+	<meta name="keywords" content="{% block Keywords %}{% endblock %}" />
+	<meta name="author" content="Sergi Erjemin{% block Author4Meta %}{% endblock %}" />
+	<meta name="copyright" lang="ru" content="Sergei Erjemin{% block CopyrightAuthor4Meta %}{% endblock %}" />
+	<meta name="robots" content="index,follow" />
+	<meta name="document-state" content="{{ META_DOCUMENT_STATE|default:"Dynamic" }}" />
+	<meta name="generator" content="TreeClassify 0.1β by Python/Django" />
+	<title>classifier-manager DEMO: Тут растут деревья</title>
+
+  <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+  <!--link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" / -->
+  <link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css" />
+  <script src="//code.jquery.com/jquery-2.1.1.min.js" type="text/javascript"></script>
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" type="text/javascript"></script>
+  <link href="https://fonts.googleapis.com/css?family=Neucha" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Bad+Script" rel="stylesheet">
+  {% block Top_JS1 %}{% endblock %}{% block Top_JS2 %}{% endblock %}{% block Top_JS3 %}{% endblock %}
+</head>
+
+
+<body>
+<div style="height: 100% !important;
+  width: 100% !important;
+  background-image: url('/static/img/cubex.png');
+  background-repeat: no-repeat;
+  background-position: 10% 85%;
+  z-index:-2;
+  position:absolute !important;"
+></div>
+
+
+<div class="row">
+	<div class="col-xs-8 col-xs-offset-4">
+    <p>&nbsp;<br>>&nbsp;<br></p>
+    <h1 style="font-family: 'Neucha', cursive;
+        font-size: 7em;
+        text-shadow: 1px 1px 6px white;">Т‐ты кто такой?<br>
+      ИДИ В ЖОПУ…<sup><small style="color: coral">*</small></sup></h1>
+    <p style="font-family: 'Bad Script', cursive;font-size: 3ex;"><sub><big style="color: coral">*</big></sub> — предложение относится только к поисковым роботам…</p>
+
+	</div>
+</div>
+
+
+
+</body>
+</html>
