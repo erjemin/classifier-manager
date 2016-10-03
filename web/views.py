@@ -125,8 +125,8 @@ def index (request) :
 # Сортировка и исправление даннх в веточке дерева (для рекурсивной сортировки деревьев)
 def hlop_hlop ( parentID, parentNESTING, parentCHAIN, sorter, sectionType ):
     # проверка на аутентификацию
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect("/not-denice")
+    # if not request.user.is_authenticated():
+    #     return HttpResponseRedirect("/not-denice")
     query = TreeClassify.objects.filter(kParent_id=parentID).order_by('sSectionName_ru')
     iteration = 0
     for count in query:
@@ -151,8 +151,8 @@ def hlop_hlop ( parentID, parentNESTING, parentCHAIN, sorter, sectionType ):
 def recheck (request):
     tStart = clock()
     # проверка на аутентификацию
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect("/not-denice")
+    # if not request.user.is_authenticated():
+    #     return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "informer.html" # шаблон
     # dimention_to_template.update({'SOMETHING_DO_WITH_ID': 0})
@@ -182,8 +182,8 @@ def recheck (request):
 def add_to_root (request):
     tStart = clock()
     # проверка на аутентификацию
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect("/not-denice")
+    # if not request.user.is_authenticated():
+    #     return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "informer.html" # шаблон
     dimention_to_template.update({'SOMETHING_DO_WITH_ID': 0})
@@ -233,8 +233,8 @@ def add_to_root (request):
 def add_subpart (request):
     tStart = clock()
     # проверка на аутентификацию
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect("/not-denice")
+    # if not request.user.is_authenticated():
+    #     return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "informer.html" # шаблон
     dimention_to_template.update({'SOMETHING_DO_WITH_ID': 0})
@@ -279,8 +279,8 @@ def add_subpart (request):
 def del_part_and_subpart (request):
     tStart = clock()
     # проверка на аутентификацию
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect("/not-denice")
+    # if not request.user.is_authenticated():
+    #     return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "informer.html" # шаблон
     dimention_to_template.update({'SOMETHING_DEL': 0})
@@ -335,8 +335,8 @@ def del_part_and_subpart (request):
 def edt_part (request):
     tStart = clock()
     # проверка на аутентификацию
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect("/not-denice")
+    # if not request.user.is_authenticated():
+    #     return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "informer.html" # шаблон
     dimention_to_template.update({'SOMETHING_DO_WITH_ID': 0})
@@ -383,8 +383,8 @@ def edt_part (request):
 def edt_make_alias (request):
     tStart = clock()
     # проверка на аутентификацию
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect("/not-denice")
+    # if not request.user.is_authenticated():
+    #     return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "informer.html" # шаблон
     dimention_to_template.update({'SOMETHING_DO_WITH_ID': 0})
@@ -424,8 +424,8 @@ def edt_make_alias (request):
 def move_subpart (request):
     tStart = clock()
     # проверка на аутентификацию
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect("/not-denice")
+    # if not request.user.is_authenticated():
+    #     return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "informer.html" # шаблон
     dimention_to_template.update({'SOMETHING_DO_WITH_ID': ''})
@@ -507,8 +507,8 @@ def autocomplete_sect (request):
 def aliasmanager (request):
     tStart = clock()
     # проверка на аутентификацию
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect("/not-denice")
+    # if not request.user.is_authenticated():
+    #     return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "aliaser.html" # шаблон
     MarkRowWithID = []
@@ -583,8 +583,8 @@ def aliasmanager (request):
 def aliasmarker (request):
     tStart = clock()
     # проверка на аутентификацию
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect("/not-denice")
+    # if not request.user.is_authenticated():
+    #     return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "informer1.html" # шаблон
     if request.method == 'POST':
@@ -611,8 +611,8 @@ def aliasmarker (request):
 def glukalo1 (request):
     tStart = clock()
     # проверка на аутентификацию
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect("/not-denice")
+    # if not request.user.is_authenticated():
+    #     return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "glukalo_1.html" # шаблон
 
@@ -645,8 +645,8 @@ def glukalo1 (request):
 def glukalo2 (request):
     tStart = clock()
     # проверка на аутентификацию
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect("/not-denice")
+    # if not request.user.is_authenticated():
+    #     return HttpResponseRedirect("/not-denice")
     dimention_to_template = {}
     template = "glukalo_2.html" # шаблон
     NumViz = 0 # как будто первый визит

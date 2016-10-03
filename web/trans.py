@@ -483,12 +483,10 @@ def service (request):
     dimention_to_template = {}   # словарь, для передачи шаблону
     template = "informer0.html" # шаблон
     # ОБНОВЛЕНИЕ ПАРОЛЯ СУПЕРПОЛЬЗОВАТЕЛЯ
-    from django.contrib.auth.models import User
-    # user = User.objects.get( username='nikolya_857')
-    user = User.objects.get( username='eserg')
-    # user.set_password("Nikolai857")
-    user.set_password("qwaseR12")
-    user.save()
+    # from django.contrib.auth.models import User
+    # user = User.objects.get( username='***')
+    # user.set_password("****")
+    # user.save()
     # n =  LangMatch.objects.filter(sLangType=u"ENG", sSectionNameForeign=NOTR_STRING).update(bSectionMastTranslate=True, bSectionMastCheck=False)
     # print n
     # n =  LangMatch.objects.filter(bSectionTranslateActual=False).update(bSectionMastTranslate=False, bSectionMastCheck=False)

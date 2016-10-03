@@ -24,7 +24,7 @@ Including another URLconf
 from django.conf.urls import patterns, include, url
 
 from django.contrib import admin
-from web import views, trans, report
+from web import views, trans, analiz
 
 urlpatterns = [
     url( r'^admin/', include(admin.site.urls) ),
@@ -55,7 +55,7 @@ urlpatterns = [
     url( r'^not-denice', views.not_denice ),
 
     # эксперименты
-    url( r'^compare_sets/(?P<List2Compare>[\s\S]+|.*)$', report.compare_offers ),
+    url( r'^analiz$', analiz.analiz01 ),
 
 
     #url( r'^admin/doc/', include('django.contrib.admindocs.urls') ),

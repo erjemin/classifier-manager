@@ -1,0 +1,53 @@
+<!DOCTYPE html>{% load staticfiles %}
+<html lang="ru">
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="content-language" content="ru" />
+	<meta http-equiv="Date" content="{% block Date4Meta %}{% now "c" %}{% endblock %}" />
+	<meta http-equiv="Last-Modified" content="{% block Last4Meta %}{% now "c" %}{% endblock %}" />
+	<meta http-equiv="Expires" content="{% block Expires4Meta %}{% now "c" %}{% endblock %}" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="description" content="ИНФОРМЕР" />
+	<meta name="keywords" content="" />
+	<meta name="author" content="Sergi Erjemin" />
+	<meta name="copyright" lang="ru" content="Sergei Erjemin" />
+	<meta name="robots" content="index,follow" />
+	<meta name="document-state" content="Dynamic" />
+	<meta name="generator" content="TreeClassify 0.1β by Python/Django" />
+	<title>ИНФОРМЕР</title>
+</head>
+<body>
+
+
+<style>
+.vcenter {
+  display: table;
+  width: 100%;
+  height: 180px;
+  text-align: center;
+}
+.vcenter div { /* для IE8+ */
+  display: table-cell;
+  vertical-align: middle;
+}
+.vcenter div:nth-child(2) { /* не менее высоты родителя */
+  background: #9F9;
+}
+</style>
+
+
+<div>
+  <div>
+	  <h3>ANALIZ TEST</h3>
+	  <pre>{{ MSG|safe }}</pre>
+
+	  <p id="may_be" style="font-size:x-small;"></p>
+    <pre>time: {{ TAU|floatformat:4  }} сек.</pre>
+  </div>
+</div>
+
+
+</body>
+
+</html>
