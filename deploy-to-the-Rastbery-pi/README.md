@@ -1,13 +1,13 @@
 # Как развертывать под Linux
 
 В моем случае под Debian GNU/Linux установленом на Raspberry pi 3.
-Развертывание под другие разновидности Debian (Ubuntu, Runtu, gNewSense и пр.) под Raspberry pi 3) не должно отличаться.
+Развертывание под другие разновидности Debian (Ubuntu, Runtu, gNewSense и пр.) не должно отличаться.
 
 Установка пакетов до виртуального окружения
 -------------------------
 
 Устанавливаем веб-вервер nginx
-...sh
+...shell
 sudo apt-get install nginx
 ...
 
