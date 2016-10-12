@@ -51,7 +51,8 @@ tar -zxvf nginx-1.11.1.tar.gz
 cd nginx-1.11.1.tar.gz
 ```
 Командой `nano conf.sh` создаем командный файл: 
-    ./configure --sbin-path=/usr/local/sbin \
+```bash
+./configure --sbin-path=/usr/local/sbin \
 --conf-path=/etc/nginx/nginx.conf \
 --error-log-path=/var/log/nginx/error.log \
 --http-log-path=/var/log/nginx/access.log \
@@ -64,7 +65,29 @@ cd nginx-1.11.1.tar.gz
 --with-http_flv_module \
 --with-http_dav_module \
 --with-http_secure_link_module \
---add-module=/root/nginx/nginx-webdav-ext/
+```
+В этот же файл можно добавить дополнительные модуди, если мы хотим сорку с ними. Например, на такой маленькой машинке как Sapberry pi пригодился бы модуль поддержки WebDAV `--add-module=/root/nginx/nginx-webdav-ext/` (естественно, его перед сборкой тоже надо будет скачать). Но для конкретного проекта в этом нет необходимости. 
+
+Для того чтобы командный `conf.sh` файл  можно было запустить устанавливаем соответсвующие права, а за тем запускаем. 
+```bash
+chmod +rwx conf.sh
+sudo bash conf.sh
+```
+
+Если все прошло хорошо, то можно приступать с компиляции, и установить то что получится.
+```bash
+make
+make install
+```
+
+nginx установлен. Если же поле `make` ругается на недостаток каких-то модулей в Linux, то придется разобраться, установить необходимое. Если же все прошло гладко, то нужно проверить, что запускается:
+```bash
+sudo service nginx start
+```
+Убедиться что nginx работает корректно можно набрав арес или ip нашего сервера в браузере. Должна отображаться страница: ***`Welcome to nginx on Debian!`***
+
+
+
 
 ------
 Данная микросистема управление деревьями работает во внутренних интерфейсах [Торгово-логистического портала **CargоToGo**] (http://cargotogo.com) и [Маркет-плейс агрегатора окон **«Окнардия»**] (http://oknardia.ru). Надеюсь, что проделанная работа пригодится и вам. Успехов!
