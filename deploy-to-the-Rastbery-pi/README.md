@@ -1,4 +1,5 @@
-# Как развертывать под Linux
+Как развертывать под Linux
+==============================
 
 В моем случае под Debian GNU/Linux установленом на Raspberry pi 3.
 Развертывание под другие разновидности Debian (Ubuntu, Runtu, gNewSense и пр.) не должно отличаться.
@@ -32,11 +33,38 @@ sudo rm -rf /etc/apache2
 ```bash
 apt-get update
 ```
-Теперь можем приступить к установке **nginx**. К сожалению, в репозиториях Debian для Raspbery pi лежат не самые свежие пакеты. Аредпочтительна установки из исходников. Устанавливает пакеты, необходимые для сборки nginx из исходников (компилятор С++, библиотеки и все такое)
-```
-sudo apt-get install build-essential libpcre3-dev libcurl4-openssl-dev gcc
+
+Теперь можем приступить к установке **nginx**. К сожалению, в репозиториях Debian для Raspbery pi лежат не самые свежие пакеты. Аредпочтительна установки из исходников. Устанавливает пакеты, необходимые для сборки nginx из исходников (компилятор С++, библиотеки и все такое):
+```bash
+sudo apt-get install gcc
+sudo apt-get install build-essential 
+sudo apt-get install libpcre3-dev 
+sudo apt-get install libcurl4-openssl-dev
+sudo apt-get install libexpat1-dev
 ```
 
+Смотрим [на сайте nginx] (http://nginx.org/ru/download.html) акутальную стабильную версию, скачиваем ее в домашнюю директорию и расспаковываем исходники. Переходим в папку, в которую все распокавалось. В ней будем собирать пакет:
+```bash
+cd ~
+wget http://nginx.org/download/nginx-1.11.1.tar.gz 
+tar -zxvf nginx-1.11.1.tar.gz 
+cd nginx-1.11.1.tar.gz
+```
+Командой `nano conf.sh` создаем командный файл: 
+    ./configure --sbin-path=/usr/local/sbin \
+--conf-path=/etc/nginx/nginx.conf \
+--error-log-path=/var/log/nginx/error.log \
+--http-log-path=/var/log/nginx/access.log \
+--pid-path=/var/run/nginx.pid \
+--user=www-data \
+--group=www-data \
+--with-http_gzip_static_module \
+--with-http_realip_module \
+--with-http_mp4_module \
+--with-http_flv_module \
+--with-http_dav_module \
+--with-http_secure_link_module \
+--add-module=/root/nginx/nginx-webdav-ext/
 
 ------
 Данная микросистема управление деревьями работает во внутренних интерфейсах [Торгово-логистического портала **CargоToGo**] (http://cargotogo.com) и [Маркет-плейс агрегатора окон **«Окнардия»**] (http://oknardia.ru). Надеюсь, что проделанная работа пригодится и вам. Успехов!
