@@ -7,9 +7,9 @@
 -------------------------
 
 Устанавливаем веб-вервер nginx
-'''sh
-sudo apt-get install nginx
-'''
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+```
 
 
 ------
