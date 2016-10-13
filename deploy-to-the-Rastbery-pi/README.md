@@ -191,11 +191,11 @@ server {
 
     # Расположение media-файлов Django
     location /media  {
-        alias /home/eserg/c2g.cube2.ru/classifier-manager/media;  
+        alias /home/user/c2g.cube2.ru/classifier-manager/media;  
     }
     # Расположение static-файлов Django
     location /static {
-        alias /home/eserg/c2g.cube2.ru/classifier-manager/static; 
+        alias /home/user/c2g.cube2.ru/classifier-manager/static; 
     }
     
     # Остальные запросы перенаправляются в Django приложение
