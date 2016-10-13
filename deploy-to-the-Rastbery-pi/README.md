@@ -31,7 +31,7 @@ sudo rm -rf /etc/apache2
 
 Все. Мы полностью избавились от Apache2 и теперь можно обновить репозиторий. Это особенно важно если разворачиваем на новой машинке или свежей VPS, где он полностью пустой:
 ```bash
-apt-get update
+sudo apt-get update
 ```
 
 Теперь можем приступить к установке **nginx**:
@@ -158,7 +158,7 @@ mkdir -p $HOME/c2g.cube2.ru/sock
 
 Создаём конфигурационный файл c2g.cube2.ru_nginx.conf:
 ```bash
-nano $HOME/c2g.cube2.ru_nginx.conf
+nano $HOME/c2g.cube2.ru/c2g_cube2_ru_nginx.conf
 ```
 Со следующим содержанием:
 ```conf
@@ -176,7 +176,7 @@ nano $HOME/c2g.cube2.ru_nginx.conf
 
 upstream c2g_cube2_ru_django {
     # расположение файла Unix-сокет для взаимодействие с uwsgi
-    server: /home/_user_/c2g.cube2.ru/sock/abc_cube2_ru_uwsgi.sock  
+    server: unix:///home/_user_/c2g.cube2.ru/sock/c2g_cube2_ru_uwsgi.sock  
     # также можно использовать веб-сокет (порт) для взаимодействие с uwsgi. Но это медленнее
     # server 127.0.0.1:8001; # для взаимодействия с uwsgi через веб-порт
 }
@@ -208,19 +208,29 @@ server {
 ```  
 Сохраняем файл `Ctrl+O` и `Enter`, а затем выходим из редактора `Ctrl+X`.
 
-Эта конфигурация сообщает nginx, каким образом он отдвет данные при обращении к _c2g.cube2.ru_ по порту _80_. Так, при обащении статическим и загруженным пользователем файлам, он отдает их из соответсвующих каталогов, а остальные  запросы перенаправляются в Django приложение через апстрим _c2g_cube2_ru_django_, который работает через юникосвкий файл-сокет _/home/____user____/c2g.cube2.ru/sock/abc_cube2_ru_uwsgi.sock_.
+Эта конфигурация сообщает nginx, каким образом он отдвет данные при обращении к _c2g.cube2.ru_ по порту _80_. Так, при обащении статическим и загруженным пользователем файлам, он отдает их из соответсвующих каталогов, а остальные  запросы перенаправляются в Django приложение через апстрим _c2g_cube2_ru_django_, который работает через юникосвкий файл-сокет _/home/_user_/c2g.cube2.ru/sock/abc_cube2_ru_uwsgi.sock_.
 
 По умолчанию файл конфигурации uwsgi нажодится в папке _/etc/nginx/uwsgi_params_ и мы спользуем именно его, но при желании мы может переопределить eго. Кслову сказать, в ранних версиях nginx файл _uwsgi_params_ в поставку не входил. Проверьте естьли он у вас, и при необходимости загрузите с сайта https://github.com/nginx/nginx/blob/master/conf/uwsgi_params
 
+Чтобы nginx подключил наш новый файл конфигурации сайьа нужно добавьте ссылку на него в каталог /etc/nginx/sites-enabled/
+```bash
+sudo ln -s $HOME/c2g.cube2.ru/c2g_cube2_ru_nginx.conf /etc/nginx/sites-enabled/
+```
 
-Чтобы nginx использовал новый файл конфигурации, добавьте ссылку на него в каталог /etc/nginx/sites-enabled/
-
-cd /etc/nginx/sites-enabled/
-ln -s /data/mysite/conf/mysite_nginx.conf
-Теперь нужно перезагрузить nginx командой
-
-service nginx restart
-
+Теперь нужно перезагрузить nginx
+```bash
+sudo service nginx restart
+```
 
 ------
 Данная микросистема управление деревьями работает во внутренних интерфейсах [Торгово-логистического портала **CargоToGo**] (http://cargotogo.com) и [Маркет-плейс агрегатора окон **«Окнардия»**] (http://oknardia.ru). Надеюсь, что проделанная работа пригодится и вам. Успехов!
+
+
+sudo rm -rf /usr/share/man/man1/nginx.1.gz
+sudo rm -rf /usr/share/nginx
+sudo rm -rf /usr/local/nginx
+sudo rm -rf /usr/local/sbin/nginx
+sudo rm -rf /etc/nginx
+sudo rm -rf /usr/sbin/nginx
+
+
