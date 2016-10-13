@@ -71,6 +71,8 @@ cd nginx-1.10.1
 --with-http_dav_module \
 --with-http_secure_link_module \
 ```
+Сохраняем файл `Ctrl+O` и `Enter`, а затем выходим из редактора `Ctrl+X`. 
+
 В этот же файл можно добавить дополнительные модуди, если мы хотим сорку с ними. Например, на такой маленькой машинке как Sapberry pi пригодился бы модуль поддержки WebDAV `--add-module=/root/nginx/nginx-webdav-ext/` (естественно, его перед сборкой тоже надо будет скачать). Но для конкретного проекта в этом нет необходимости. 
 
 Для того чтобы командный `conf.sh` файл  можно было запустить устанавливаем соответсвующие права, а за тем запускаем. 
@@ -126,7 +128,6 @@ sudo apt-get install python-dev
 sudo pip install uwsgi
 ```
 
-
 У нас на сервере будет нескольких сайтов, то нужно выделить отдельный каталог для каждого. Для простоты лучше называть каталог так-же как и сайт. Наш сайт будет называться c2g.cube2.ru, а значит пусть и папка будет иметь тоже имя: 
 ```bash
 mkdir -p $HOME/c2g.cube2.ru
@@ -167,7 +168,7 @@ nano $HOME/c2g.cube2.ru_nginx.conf
 #      \___)(____)\___/()\___)(______)(____/(____)(____)()(_)\_)(______)
 # Конфикурационный файл nginx для сайта c2g.cube2.ru (c2g.cube2.ru_nginx.conf)
 
-# не забываем изменять user на имя нашего пользователя, которому будет разрешено деплоить и перезапускать сайт.
+# не забываем изменять _user_ на имя нашего пользователя, которому будет разрешено деплоить и перезапускать сайт.
 
 # Описываем апстрим-потоки которые должен подключить Nginx 
 # Для каждого сайта надо настроить свйо поток, со своим уникальным именем.
@@ -175,7 +176,7 @@ nano $HOME/c2g.cube2.ru_nginx.conf
 
 upstream c2g_cube2_ru_django {
     # расположение файла Unix-сокет для взаимодействие с uwsgi
-    server: /home/user/c2g.cube2.ru/sock/abc_cube2_ru_uwsgi.sock  
+    server: /home/_user_/c2g.cube2.ru/sock/abc_cube2_ru_uwsgi.sock  
     # также можно использовать веб-сокет (порт) для взаимодействие с uwsgi. Но это медленнее
     # server 127.0.0.1:8001; # для взаимодействия с uwsgi через веб-порт
 }
@@ -185,26 +186,40 @@ server {
     listen      80;           # порт на котором будет доступен наш сайт
     server_name c2g.cube2.ru; # доменное имя сайта
     charset     utf-8;        # подировка по умолчанию
-    access_log  /home/user/c2g.cube2.ru/logs/c2g_cube2_ru_access.log; # логи с доступом
-    error_log   /home/user/c2g.cube2.ru/logs/c2g_cube2_ru_-error.log; # логи с ошибками
+    access_log  /home/_user_/c2g.cube2.ru/logs/c2g_cube2_ru_access.log; # логи с доступом
+    error_log   /home/_user_/c2g.cube2.ru/logs/c2g_cube2_ru_-error.log; # логи с ошибками
     client_max_body_size 32M; # максимальный объем файла для загрузки на сайт (max upload size)
 
     # Расположение media-файлов Django
     location /media  {
-        alias /home/user/c2g.cube2.ru/classifier-manager/media;  
+        alias /home/_user_/c2g.cube2.ru/classifier-manager/media;  
     }
     # Расположение static-файлов Django
     location /static {
-        alias /home/user/c2g.cube2.ru/classifier-manager/static; 
+        alias /home/_user_/c2g.cube2.ru/classifier-manager/static; 
     }
     
     # Остальные запросы перенаправляются в Django приложение
     location / {
         uwsgi_pass  c2g_cube2_ru_django;
-        include     uwsgi_params; 
+        include     uwsgi_params;       # конфигурационный файл uwsgi;
         }
     }
-```    
+```  
+Сохраняем файл `Ctrl+O` и `Enter`, а затем выходим из редактора `Ctrl+X`.
+
+Эта конфигурация сообщает nginx, каким образом он отдвет данные при обращении к _c2g.cube2.ru_ по порту _80_. Так, при обащении статическим и загруженным пользователем файлам, он отдает их из соответсвующих каталогов, а остальные  запросы перенаправляются в Django приложение через апстрим _c2g_cube2_ru_django_, который работает через юникосвкий файл-сокет _/home/____user____/c2g.cube2.ru/sock/abc_cube2_ru_uwsgi.sock_.
+
+По умолчанию файл конфигурации uwsgi нажодится в папке _/etc/nginx/uwsgi_params_ и мы спользуем именно его, но при желании мы может переопределить eго. Кслову сказать, в ранних версиях nginx файл _uwsgi_params_ в поставку не входил. Проверьте естьли он у вас, и при необходимости загрузите с сайта https://github.com/nginx/nginx/blob/master/conf/uwsgi_params
+
+
+Чтобы nginx использовал новый файл конфигурации, добавьте ссылку на него в каталог /etc/nginx/sites-enabled/
+
+cd /etc/nginx/sites-enabled/
+ln -s /data/mysite/conf/mysite_nginx.conf
+Теперь нужно перезагрузить nginx командой
+
+service nginx restart
 
 
 ------
