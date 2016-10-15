@@ -222,6 +222,9 @@ sudo ln -s $HOME/c2g.cube2.ru/c2g_cube2_ru_nginx.conf /etc/nginx/sites-enabled/
 sudo service nginx restart
 ```
 
+В результате статические файлы теперь будут отдаваться в браузер. Так вызвав `http://c2g.cube2.ru/static/img/cubex.png` получим картинку:
+![Что показываю по http://c2g.cube2.ru/static/img/cubex.png](https://raw.githubusercontent.com/erjemin/classifier-manager/master/static/img/cubex.png "cubex.png")
+
 ------
 Данная микросистема управление деревьями работает во внутренних интерфейсах [Торгово-логистического портала **CargоToGo**] (http://cargotogo.com) и [Маркет-плейс агрегатора окон **«Окнардия»**] (http://oknardia.ru). Надеюсь, что проделанная работа пригодится и вам. Успехов!
 
