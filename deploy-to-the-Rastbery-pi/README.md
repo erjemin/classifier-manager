@@ -16,7 +16,7 @@ sudo apt-get purge apache2 apache2-utils apache2.2-bin apache2-common
 
 Затем чистим неиспользуемые («подвисшие») зависимые пакеты, которые не удалилось деинсталировать с помощью предыдущей команды:
 ```bash
-apt-get autoremove
+sudo apt-get autoremove
 ```
 
 Ищем файлы, который остались от Apache2 (папки, которые не удалились, файлы и т.д.):
@@ -113,6 +113,8 @@ rm $HOME/nginx-1.10.1.tar.gz
 
 # Подготавливаем каталог проекта и разворачиваем Django для работы
 
+`sudo usermod -g www-data eserg`
+
 Что бы развернуть проект c git-hub-а нам понадобится **git**. Для того, чтобы наш проект мог использовать собственные библиоткеи python (в том числе и собственную версию Djagino) и не зависить от общих настроек Python надо установить серверный пакет виртуального окружения **python-virtualenv**. В него, при необходимости, можно установить даже отдельную версию самого Python. Для того чтобы можно было установить uwsgi (а может и еще для чего нибудь) нужно установить пакет **python-dev**
 ```bash
 sudo apt-get install git
@@ -176,7 +178,7 @@ nano $HOME/c2g.cube2.ru/c2g_cube2_ru_nginx.conf
 
 upstream c2g_cube2_ru_django {
     # расположение файла Unix-сокет для взаимодействие с uwsgi
-    server: unix:///home/_user_/c2g.cube2.ru/sock/c2g_cube2_ru_uwsgi.sock  
+    server: unix:///home/_user_/c2g.cube2.ru/sock/c2g_cube2_ru.sock;  
     # также можно использовать веб-сокет (порт) для взаимодействие с uwsgi. Но это медленнее
     # server 127.0.0.1:8001; # для взаимодействия с uwsgi через веб-порт
 }
@@ -187,17 +189,17 @@ server {
     server_name c2g.cube2.ru; # доменное имя сайта
     charset     utf-8;        # подировка по умолчанию
     access_log  /home/_user_/c2g.cube2.ru/logs/c2g_cube2_ru_access.log; # логи с доступом
-    error_log   /home/_user_/c2g.cube2.ru/logs/c2g_cube2_ru_-error.log; # логи с ошибками
+    error_log   /home/_user_/c2g.cube2.ru/logs/c2g_cube2_ru_error.log; # логи с ошибками
     client_max_body_size 32M; # максимальный объем файла для загрузки на сайт (max upload size)
 
     # Расположение media-файлов Django
     location /media  {
         alias /home/_user_/c2g.cube2.ru/classifier-manager/media;  
-    }
+        }
     # Расположение static-файлов Django
     location /static {
         alias /home/_user_/c2g.cube2.ru/classifier-manager/static; 
-    }
+        }
     
     # Остальные запросы перенаправляются в Django приложение
     location / {
@@ -206,7 +208,7 @@ server {
         }
     }
 ```  
-Сохраняем файл `Ctrl+O` и `Enter`, а затем выходим из редактора `Ctrl+X`.
+Проверьте ве скуобочки и точки с запятой... Они могут создать много неприятностей. Сохраняем файл `Ctrl+O` и `Enter`, а затем выходим из редактора `Ctrl+X`.
 
 Эта конфигурация сообщает nginx, каким образом он отдвет данные при обращении к _c2g.cube2.ru_ по порту _80_. Так, при обащении статическим и загруженным пользователем файлам, он отдает их из соответсвующих каталогов, а остальные  запросы перенаправляются в Django приложение через апстрим _c2g_cube2_ru_django_, который работает через юникосвкий файл-сокет _/home/_user_/c2g.cube2.ru/sock/abc_cube2_ru_uwsgi.sock_.
 
@@ -225,15 +227,175 @@ sudo service nginx restart
 В результате статические файлы теперь будут отдаваться в браузер. Так вызвав `http://c2g.cube2.ru/static/img/cubex.png` получим картинку:
 ![Что показываю по http://c2g.cube2.ru/static/img/cubex.png](https://raw.githubusercontent.com/erjemin/classifier-manager/master/static/img/cubex.png "cubex.png")
 
+nginx работает. То что все в нем корректно проверяем командой: `systemctl status nginx.service`
+
+```
+● nginx.service - A high performance web server and a reverse proxy server
+   Loaded: loaded (/lib/systemd/system/nginx.service; enabled)
+   Active: active (running) since Вс 2016-10-16 01:04:21 MSK; 5min ago
+  Process: 26642 ExecStop=/sbin/start-stop-daemon --quiet --stop --retry QUIT/5 --pidfile /run/nginx.pid (code=exited, status=0/SUCCESS)
+  Process: 26648 ExecStart=/usr/sbin/nginx -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+  Process: 26645 ExecStartPre=/usr/sbin/nginx -t -q -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+ Main PID: 26650 (nginx)
+   CGroup: /system.slice/nginx.service
+           ├─26650 nginx: master process /usr/sbin/nginx -g daemon on; master_process on;
+           ├─26651 nginx: worker process
+           ├─26652 nginx: worker process
+           ├─26653 nginx: worker process
+           └─26654 nginx: worker process
+```
+
+Теперь создаем файл конфигурации uwsgi для нашего проекта. В нем буду описано какое виртуальное окружение использует проект.
+```bash
+nano /home/eserg/c2g.cube2.ru/conf/c2g_cube2_ru_uwsgi.ini
+```
+Сожержание этого файла будет примерно таким
+```bash
+# c2g_cube2_ru_uwsgi.ini -- настройки uWSGI для c2g.cube2.ru
+[uwsgi]
+
+# НАСТРОЙКИ ДЛЯ DJANGO
+# Корневая папка проекта (полный путь)
+chdir           = /home/eserg/c2g.cube2.ru/classifier-manager
+# Django wsgi файл
+module          = classifier.wsgi
+# полный путь к виртуальному окружению
+home            = /home/eserg/c2g.cube2.ru/env
+# полный путь к файлу сокета
+socket          = /home/eserg/c2g.cube2.ru/sock/c2g_cube2_ru.sock
+# Исходящие сообщения в лог
+daemonize       = /home/eserg/c2g.cube2.ru/logs/c2g_cube2_ru_uwsqi.log
+
+
+# общие настройки
+# быть master-процессом
+master          = true
+# максимальное количество процессов
+processes       = 4
+# права доступа к файлу сокета
+chmod-socket    = 666
+# chown-socket  =  ???
+# очищать окружение от служебных файлов uwsgi по завершению
+vacuum          = true
+# количество секунд после которых подвисший процес будет перезапущен
+# harakiri        = 30
+# WARNING: you have enabled harakiri without post buffering. Slow upload could be rejected on post-unbuffered webservers
+
+enable-threads = true
+vacuum = true
+thunder-lock = true
+max-requests = 5000
+
+
+# uid             = www-data
+# gid             = www-data
+
+```
+
+Запускаем uwsgi с нашим конфигом:
+```bash
+uwsgi --ini /home/eserg/c2g.cube2.ru/conf/c2g_cube2_ru_uwsgi.ini
+```
+
+Если ничего не заработало, то проверяем файл и смотрим Log `/home/[user]/c2g.cube2.ru/logs/c2g_cube2_ru_error.log`. Виды ошибок:
+Первая:
+```
+2016/10/16 01:05:45 [crit] 26651#0: *2 connect() to unix:///home/[user]/c2g.cube2.ru/sock/c2g_cube2_ru.sock failed (13: Permission denied) while connecting to upstream, client: 192.168.1.1, server: c2g.cube2.ru, request: "GET / HTTP/1.1", upstream: "uwsgi://unix:///home/eserg/c2g.cube2.ru/sock/c2g_cube2_ru.sock:", host: "c2g.cube2.ru"
+```
+Означает, что не хватает прав на доступ с сокетом. По идее в нашем `c2g_cube2_ru_uwsgi.ini` должно хватать `chmod-socket = 664`, но непонтяно почему не хватает. Меняем на `chmod-socket = 666`. 
+
+Вторая:
+````
+2016/10/16 01:36:34 [error] 26844#0: *7 upstream prematurely closed connection while reading response header from upstream, client: 192.168.1.1, server: c2g.cube2.ru, request: "GET / HTTP/1.1", upstream: "uwsgi://unix:///home/eserg/c2g.cube2.ru/sock/c2g_cube2_ru.sock:", host: "c2g.cube2.ru"
+````
+
+```bash
+cat /home/eserg/c2g.cube2.ru/logs/c2g_cube2_ru_uwsqi.log
+```
+
+В нем отображаются все сообщения инициализации uwsgi. Внизу находятся самые свежие записи. Запись начинается со строки: `*** Starting uWSGI`. Нас могут беспокоить : `!!! no internal routing support, rebuild with pcre support !!!` -- Значит у нас устанвлен однопоточный uwsg при многопоточном nginx и процессорею. Можно устанвить `enable-threads = false`, но лучше собрать многопоточный uwsgi с pcre:
+```
+deactivate
+sudo apt-get install libpcre3 libpcre3-dev
+sudo pip uninstall uwsgi
+sudo apt-get purge uwsgi
+sudo pip install uwsgi -I
+```
+
+В конце выдаст:
+```
+    ################# uWSGI configuration #################
+    
+    pcre = True
+    kernel = Linux
+    malloc = libc
+    execinfo = False
+    ifaddrs = True
+    ssl = False
+    zlib = True
+    locking = pthread_mutex
+    plugin_dir = .
+    timer = timerfd
+    yaml = embedded
+    json = False
+    filemonitor = inotify
+    routing = True
+    debug = False
+    ucontext = False
+    capabilities = False
+    xml = expat
+    event = epoll
+    
+    ############## end of uWSGI configuration #############
+    ```
+   
+Как видим `pcre = True`, значит все установилось правильно.
+
+Запускаем uwsgi с нашим конфигом:
+```bash
+uwsgi --ini /home/eserg/c2g.cube2.ru/conf/c2g_cube2_ru_uwsgi.ini
+```
+Открываем сайт. И если он открывается с ошибкой 502, то смотрим 
+
+
+sudo apt-get install mysql-server
+
+пароль
+
+source $HOME/c2g.cube2.ru/env/bin/activate
+pip install Django==1.9.10
+pip install mysql-connector
+sudo apt-get install python-dev libmysqlclient-dev
+pip install mysqlclient
+
+
+
+
+
+# Emperor-режим uwsgi
+
+Если сервер обслуживает несколько проектов, каждый из которых использует uWSGI, то нужно исползовать режим Emperor. В этом режиме uWSGI просматривает папку с конфигурационными файлами и для каждого файла запускает отдельный процесс (вассал).
+
+Если один из конфигурационных файлов будет изменен, uWSGI перезапустит соответствующего вассала.
+
+Создаем папку для конфигурационных файлов:
+sudo mkdir /etc/uwsgi
+sudo mkdir /etc/uwsgi/vassals
+
+Создаем в ней ссылку на mysite_uwsgi.ini:
+sudo ln -s /path/to/your/mysite/mysite_uwsgi.ini /etc/uwsgi/vassals/
+
+Запускаем uWSGI в режиме Emperor:
+sudo uwsgi --emperor /etc/uwsgi/vassals --uid www-data --gid www-data
+
+Опции:
+emperor: папка с конфигурациолнными файлами
+uid: id пользователя, от имени которого будет запущен процесс
+gid: id группы, от имени которой будет запущен процесс
+
+
+
+
 ------
 Данная микросистема управление деревьями работает во внутренних интерфейсах [Торгово-логистического портала **CargоToGo**] (http://cargotogo.com) и [Маркет-плейс агрегатора окон **«Окнардия»**] (http://oknardia.ru). Надеюсь, что проделанная работа пригодится и вам. Успехов!
-
-
-sudo rm -rf /usr/share/man/man1/nginx.1.gz
-sudo rm -rf /usr/share/nginx
-sudo rm -rf /usr/local/nginx
-sudo rm -rf /usr/local/sbin/nginx
-sudo rm -rf /etc/nginx
-sudo rm -rf /usr/sbin/nginx
-
 
