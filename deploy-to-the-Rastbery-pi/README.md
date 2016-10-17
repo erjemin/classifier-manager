@@ -392,25 +392,53 @@ python manage.py check --deploy
 
 > ?: (security.W001) You do not have 'django.middleware.security.SecurityMiddleware' in your MIDDLEWARE_CLASSES so the SECURE_HSTS_SECONDS, SECURE_CONTENT_TYPE_NOSNIFF, SECURE_BROWSER_XSS_FILTER, and SECURE_SSL_REDIRECT settings will have no effect.
 
-
 ```
 python manage.py createsuperuser
 ```
 It must contain at least 8 characters.
+
+> `Username (leave blank to use 'user'): user`
+> `Email address: user@mail.me`
+> `Password: `
+> `Password (again): ` 
+> `Superuser created successfully.`
+
+Теперь надо создать каталоги `media` и `static/js`, т.к. они для проекта нужны, а в дипозитории git их не было, а значит они не были созданы при клонировании. 
+```bash
+mkdir -p $HOME/c2g.cube2.ru/classifier-manager/static/js
+mkdir -p $HOME/c2g.cube2.ru/classifier-manager/media
 ```
-Username (leave blank to use 'user'): user
-Email address: user@mail.me
-Password: 
-Password (again): 
-Superuser created successfully.
+
+Теперь перенесем статический файлы панели администратора 
 ```
+python manage.py collectstatic
+```
+И увидим в ответ:
+>
+> You have requested to collect static files at the destination
+> location as specified in your settings:
+>
+>    /home/user/c2g.cube2.ru/classifier-manager/static
+>
+> This will overwrite existing files!
+> Are you sure you want to do this?
+> 
+> Type 'yes' to continue, or 'no' to cancel: yes
+> Copying '/home/user/c2g.cube2.ru/env/local/lib/python2.7/site-packages/django/contrib/admin/static/admin/fonts/Roboto-Light-webfont.woff'
+> Copying '/home/user/c2g.cube2.ru/env/local/lib/python2.7/site-packages/django/contrib/admin/static/admin/fonts/LICENSE.txt'
+> ...
+> ...
+> ...
+> Copying '/home/user/c2g.cube2.ru/env/local/lib/python2.7/site-packages/django/contrib/admin/static/admin/img/gis/move_vertex_on.svg'
+> Copying '/home/user/c2g.cube2.ru/env/local/lib/python2.7/site-packages/django/contrib/admin/static/admin/img/gis/move_vertex_off.svg'
+> 
+>57 static files copied to '/home/eserg/c2g.cube2.ru/classifier-manager/static', 8 unmodified.
 
-
-
-
-
-
+```
 python manage.py runserver 192.168.1.111:7000
+```
+Надо учесть, что раздача статических файлов Django-сервером для разработки при работе на внешний адрес не предусмотрено. То есть статические файлы, CSS файлы, JavaScript? изображения и другие файлы по адресу MEDIA_URL и STATIC_URL не будут доступны. Нам это и не надо, т.к. наша цель настроить боевой сервер а не тестовый сервер разработчика. Если интересно, то узнать как настроить раздачу файлов можно узнать из раздела Django-документации: [Работа со статическими файлами (CSS, изображения)](http://djbook.ru/rel1.8/howto/static-files/index.html).
+
 
 
 
