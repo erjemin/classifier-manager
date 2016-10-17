@@ -357,17 +357,59 @@ uwsgi --ini /home/eserg/c2g.cube2.ru/conf/c2g_cube2_ru_uwsgi.ini
 ```
 Открываем сайт. И если он открывается с ошибкой 502, то смотрим 
 
-
+```
 sudo apt-get install mysql-server
-
+mysql -u root -p
+CREATE DATABASE django_classify DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL PRIVILEGES ON django_classify.* TO 'user'@'%' IDENTIFIED BY 'secret_password' WITH GRANT OPTION;
+```
 пароль
 
+```
 source $HOME/c2g.cube2.ru/env/bin/activate
 pip install Django==1.9.10
+```
+Проверяем, что Django установилась правильно. Входим:
+```
+django-admin version
+```
+Если виртуальное окружение настроено правильно, и Django установлдено корректно, выведктся строка с вывести текущей версией Django:
+```
+1.9.10
+```
+продолжаем установку неодходимых модулей.
+
 pip install mysql-connector
 sudo apt-get install python-dev libmysqlclient-dev
 pip install mysqlclient
+pip install MySQL-python
+pip install transliterate
 
+cd ~/c2g.cube2.ru/classifier-manager
+python manage.py migrate --fake-initial
+
+python manage.py check --deploy
+    ?: (security.W001) You do not have 'django.middleware.security.SecurityMiddleware' in your MIDDLEWARE_CLASSES so the SECURE_HSTS_SECONDS, SECURE_CONTENT_TYPE_NOSNIFF, SECURE_BROWSER_XSS_FILTER, and SECURE_SSL_REDIRECT settings will have no effect.
+
+
+```
+python manage.py createsuperuser
+```
+It must contain at least 8 characters.
+```
+Username (leave blank to use 'user'): user
+Email address: user@mail.me
+Password: 
+Password (again): 
+Superuser created successfully.
+```
+
+
+
+
+
+
+python manage.py runserver 192.168.1.111:7000
 
 
 
