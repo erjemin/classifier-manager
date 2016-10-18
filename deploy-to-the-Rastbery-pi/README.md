@@ -4,6 +4,171 @@
 В моем случае под Debian GNU/Linux установленом на Raspberry pi 3.
 Развертывание под другие разновидности Debian (Ubuntu, Runtu, gNewSense и пр.) не должно отличаться.
 
+На нашем микросервере Raspberry pi уже есть супер пользователь по умолчанию -- **pi**. У него есть доступом по SSH. Но в силу того, что такой пользователь есть на всех Raspberry pi, то лучше закрыть ему доступ, создать нового пользователя и выполнять команды и, и запускать нужные нам сервисы от его имени. Наш пользователь будет называться **[user]**, замените его на своего.
+
+Создание пользователя и SSH-доступа
+----------------------------------
+
+Первым делом нам понадобтся настроить пользователя, от имени которого мы будем работать и SSH-доступ для него.
+
+
+Во-вторых, нам монадобится сервер базы данных МySQL. Устанавим его:
+
+-----
+
+Установка и настройка сервера MySQL
+-----------------------------------
+
+Установка сервера базы данных исключительно проста. Достаточно одной команды:
+```
+sudo apt-get install mysql-server
+```
+
+В процессе установки будет дважды запрошен пароль **root**-сперпользователя базы. Лучше чтобы он был посложнее и отличался от пароля нашего текущего (и всех остальных) пользователей. Так как мы будет использовать его дальше в инструкции. то обозначим его: «_secret_password_mysql_root_»
+
+Теперь у нас есть MySQL. Заходим в него под root-пользователем.
+```bash
+mysql -u root -p secret_password_mysql_root
+```
+
+Появится сообщение:
+```sql
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 38
+Server version: 5.5.52-0+deb8u1 (Raspbian)
+
+Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql>
+```
+
+Поздравляю, мы внутри консольного клиента MySQL. Создаем базу данных нашего проекта **(django_classify)**:
+```sql
+CREATE DATABASE django_classify DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+```
+Затем, чтобы наше Django-приложение не работало с базой от супер-пользователя **root** создаем нового пользователя бызы **[user]** с паролем «_secret_password_mysql_user_»:
+```sql
+GRANT ALL PRIVILEGES ON django_classify.* TO '[user]'@'localhost' IDENTIFIED BY 'secret_password_mysql_user' WITH GRANT OPTION;
+```
+
+Если по какой либо причине, нам понадобится удаленный доступ от имени этого пользователя (например, для работы с базой с помощью удаленного менеджера, на подобии dbForge Studio), то можно заменить `'localhost'` на `'%'`. Если захотим разрешить этому пользователю доступ и ко всем другим базам в нашем MySQL, то необходимо заменить `PRIVILEGES ON django_classify.*` на  `PRIVILEGES ON *.*`.
+
+Работа с базой закончена. Можно выйти из MySQL `Ctrl+Z`.
+
+Если мы создали MySQL пользователя с возможностью удаленного доступа, то нам понадобиться изменить конфигурационный файл MySQL. Открываем его на редактирование:
+
+```
+sudo nano /etc/mysql/my.cnf
+```
+Находим строчку `bind-address = 127.0.0.1` и комментим ее `# bind-address = 127.0.0.1` или если даем доступ только с определнного IP, то указываем его:`bind-address = 192.168.1.40`. Более сложные правила доступа следует настраивать через firewall.
+
+Сохраняем конфиг-файл MySQL `Ctrl+O`, `Enter` и `Ctrl+X`, а затем, перезапускаем MySQL чтобы изменения конфигурационного файла подействовали.
+```
+sudo service mysql restart
+```
+
+MySQL и база проекта настроены. Теперь нам нужно настроить виртуальное окружение проекта.
+
+-----
+
+Настройка виртуального окружения проекта
+----------------------------------------
+
+
+
+ 
+
+
+
+```
+source $HOME/c2g.cube2.ru/env/bin/activate
+pip install Django==1.9.10
+```
+Проверяем, что Django установилась правильно. Входим:
+```
+django-admin version
+```
+Если виртуальное окружение настроено правильно, и Django установлдено корректно, выведктся строка с вывести текущей версией Django:
+```
+1.9.10
+```
+продолжаем установку неодходимых модулей.
+
+pip install mysql-connector
+sudo apt-get install python-dev libmysqlclient-dev
+pip install mysqlclient
+pip install MySQL-python
+pip install transliterate
+
+cd ~/c2g.cube2.ru/classifier-manager
+python manage.py migrate
+
+python manage.py check --deploy
+
+> ?: (security.W001) You do not have 'django.middleware.security.SecurityMiddleware' in your MIDDLEWARE_CLASSES so the SECURE_HSTS_SECONDS, SECURE_CONTENT_TYPE_NOSNIFF, SECURE_BROWSER_XSS_FILTER, and SECURE_SSL_REDIRECT settings will have no effect.
+
+```
+python manage.py createsuperuser
+```
+It must contain at least 8 characters.
+
+> `Username (leave blank to use 'user'): user`
+> `Email address: user@mail.me`
+> `Password: `
+> `Password (again): ` 
+> `Superuser created successfully.`
+
+Теперь надо создать каталоги `media` и `static/js`, т.к. они для проекта нужны, а в дипозитории git их не было, а значит они не были созданы при клонировании. 
+```bash
+mkdir -p $HOME/c2g.cube2.ru/classifier-manager/static/js
+mkdir -p $HOME/c2g.cube2.ru/classifier-manager/media
+```
+
+Теперь перенесем статический файлы панели администратора 
+```
+python manage.py collectstatic
+```
+И увидим в ответ:
+>
+> You have requested to collect static files at the destination
+> location as specified in your settings:
+>
+>    /home/user/c2g.cube2.ru/classifier-manager/static
+>
+> This will overwrite existing files!
+> Are you sure you want to do this?
+> 
+> Type 'yes' to continue, or 'no' to cancel: yes
+> Copying '/home/user/c2g.cube2.ru/env/local/lib/python2.7/site-packages/django/contrib/admin/static/admin/fonts/Roboto-Light-webfont.woff'
+> Copying '/home/user/c2g.cube2.ru/env/local/lib/python2.7/site-packages/django/contrib/admin/static/admin/fonts/LICENSE.txt'
+> ...
+> ...
+> ...
+> Copying '/home/user/c2g.cube2.ru/env/local/lib/python2.7/site-packages/django/contrib/admin/static/admin/img/gis/move_vertex_on.svg'
+> Copying '/home/user/c2g.cube2.ru/env/local/lib/python2.7/site-packages/django/contrib/admin/static/admin/img/gis/move_vertex_off.svg'
+> 
+>57 static files copied to '/home/eserg/c2g.cube2.ru/classifier-manager/static', 8 unmodified.
+
+```
+python manage.py runserver 192.168.1.111:7000
+```
+Надо учесть, что раздача статических файлов Django-сервером для разработки при работе на внешний адрес не предусмотрено. То есть статические файлы, CSS файлы, JavaScript? изображения и другие файлы по адресу MEDIA_URL и STATIC_URL не будут доступны. Нам это и не надо, т.к. наша цель настроить боевой сервер а не тестовый сервер разработчика. Если интересно, то узнать как настроить раздачу файлов можно узнать из раздела Django-документации: [Работа со статическими файлами (CSS, изображения)](http://djbook.ru/rel1.8/howto/static-files/index.html).
+
+
+
+
+
+
+
+
+
+
 Установка пакетов до виртуального окружения
 -------------------------
 
@@ -355,132 +520,6 @@ sudo pip install uwsgi -I
 uwsgi --ini /home/eserg/c2g.cube2.ru/conf/c2g_cube2_ru_uwsgi.ini
 ```
 Открываем сайт. И если он открывается с ошибкой 502, то смотрим 
-
-Нам понадобится сервер базы данных МySQL 
-```
-sudo apt-get install mysql-server
-```
-
-Теперь у нас есть MySQL. Заходим в него под root-пользователем.
-```bash
-mysql -u root -p secret_password_mysql_root
-```
-Появится сообщение:
-```mysql
-Welcome to the MySQL monitor.  Commands end with ; or \g.
-Your MySQL connection id is 38
-Server version: 5.5.52-0+deb8u1 (Raspbian)
-
-Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
-
-Oracle is a registered trademark of Oracle Corporation and/or its
-affiliates. Other names may be trademarks of their respective
-owners.
-
-Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
-
-mysql>
-```
-
-Создаем базу данных проекта __(django_classify)__:
-```sql
-CREATE DATABASE django_classify DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
-```
-Затем, чтобы не работать с базой от супер-пользователя *(_root_)* создаем пользователя *(_user_)*:
-```sql
-GRANT ALL PRIVILEGES ON django_classify.* TO '_user_'@'localhost' IDENTIFIED BY 'secret_password_mysql_user' WITH GRANT OPTION;
-```
-Если по какой либо причине, нам понадобится удаленный доступ от имени этого пользователя (например, для работы с базой с помощью удаленного менеджера, на подобии dbForge Studio), то можно заменить _'localhost'_ на _'%'_. Так
-Работа с базой закончена. Можно выйти из MySQL `Ctrl+Z`.
-
-ДЛя того, чтобы к нему можно было подсоедениться удаленно, нам понадобиться изменить его конфигурационный файл. Открываем его на редактирование:
-
-```
-sudonano /etc/mysql/my.cnf
-```
-Находим строчку `bind-address = 127.0.0.1` и если хотим открыть доступ всем - комментим ее, если какому-то конкретному хосту - пишем его IP. Более сложные правила доступа следует настраивать через firewall. Сохраняем конфиг-файл `Ctrl+O`, `Ctrl+X`.
-
-Перезагружаем MySQL чтобы изменения конфигурационного файла подействовали.
-```
-sudo service mysql restart
-```
-
-
-```
-source $HOME/c2g.cube2.ru/env/bin/activate
-pip install Django==1.9.10
-```
-Проверяем, что Django установилась правильно. Входим:
-```
-django-admin version
-```
-Если виртуальное окружение настроено правильно, и Django установлдено корректно, выведктся строка с вывести текущей версией Django:
-```
-1.9.10
-```
-продолжаем установку неодходимых модулей.
-
-pip install mysql-connector
-sudo apt-get install python-dev libmysqlclient-dev
-pip install mysqlclient
-pip install MySQL-python
-pip install transliterate
-
-cd ~/c2g.cube2.ru/classifier-manager
-python manage.py migrate
-
-python manage.py check --deploy
-
-> ?: (security.W001) You do not have 'django.middleware.security.SecurityMiddleware' in your MIDDLEWARE_CLASSES so the SECURE_HSTS_SECONDS, SECURE_CONTENT_TYPE_NOSNIFF, SECURE_BROWSER_XSS_FILTER, and SECURE_SSL_REDIRECT settings will have no effect.
-
-```
-python manage.py createsuperuser
-```
-It must contain at least 8 characters.
-
-> `Username (leave blank to use 'user'): user`
-> `Email address: user@mail.me`
-> `Password: `
-> `Password (again): ` 
-> `Superuser created successfully.`
-
-Теперь надо создать каталоги `media` и `static/js`, т.к. они для проекта нужны, а в дипозитории git их не было, а значит они не были созданы при клонировании. 
-```bash
-mkdir -p $HOME/c2g.cube2.ru/classifier-manager/static/js
-mkdir -p $HOME/c2g.cube2.ru/classifier-manager/media
-```
-
-Теперь перенесем статический файлы панели администратора 
-```
-python manage.py collectstatic
-```
-И увидим в ответ:
->
-> You have requested to collect static files at the destination
-> location as specified in your settings:
->
->    /home/user/c2g.cube2.ru/classifier-manager/static
->
-> This will overwrite existing files!
-> Are you sure you want to do this?
-> 
-> Type 'yes' to continue, or 'no' to cancel: yes
-> Copying '/home/user/c2g.cube2.ru/env/local/lib/python2.7/site-packages/django/contrib/admin/static/admin/fonts/Roboto-Light-webfont.woff'
-> Copying '/home/user/c2g.cube2.ru/env/local/lib/python2.7/site-packages/django/contrib/admin/static/admin/fonts/LICENSE.txt'
-> ...
-> ...
-> ...
-> Copying '/home/user/c2g.cube2.ru/env/local/lib/python2.7/site-packages/django/contrib/admin/static/admin/img/gis/move_vertex_on.svg'
-> Copying '/home/user/c2g.cube2.ru/env/local/lib/python2.7/site-packages/django/contrib/admin/static/admin/img/gis/move_vertex_off.svg'
-> 
->57 static files copied to '/home/eserg/c2g.cube2.ru/classifier-manager/static', 8 unmodified.
-
-```
-python manage.py runserver 192.168.1.111:7000
-```
-Надо учесть, что раздача статических файлов Django-сервером для разработки при работе на внешний адрес не предусмотрено. То есть статические файлы, CSS файлы, JavaScript? изображения и другие файлы по адресу MEDIA_URL и STATIC_URL не будут доступны. Нам это и не надо, т.к. наша цель настроить боевой сервер а не тестовый сервер разработчика. Если интересно, то узнать как настроить раздачу файлов можно узнать из раздела Django-документации: [Работа со статическими файлами (CSS, изображения)](http://djbook.ru/rel1.8/howto/static-files/index.html).
-
-
 
 
 
