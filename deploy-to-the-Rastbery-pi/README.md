@@ -475,6 +475,7 @@ sudo service nginx restart
 ```
 
 В результате статические файлы теперь будут отдаваться в браузер. Так вызвав `http://[адрес сайта]/static/img/cubex.png` получим картинку:
+
 ![Что показываю по http://[адрес сайта]/static/img/cubex.png](https://raw.githubusercontent.com/erjemin/classifier-manager/master/static/img/cubex.png "cubex.png")
 
 nginx работает. То что все в нем корректно проверяем командой: `systemctl status nginx.service`
