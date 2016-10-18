@@ -286,9 +286,8 @@ vacuum = true
 thunder-lock = true
 max-requests = 5000
 
-
-# uid             = www-data
-# gid             = www-data
+uid             = www-data
+gid             = www-data
 
 ```
 
@@ -357,13 +356,55 @@ uwsgi --ini /home/eserg/c2g.cube2.ru/conf/c2g_cube2_ru_uwsgi.ini
 ```
 Открываем сайт. И если он открывается с ошибкой 502, то смотрим 
 
+Нам понадобится сервер базы данных МySQL 
 ```
 sudo apt-get install mysql-server
-mysql -u root -p
-CREATE DATABASE django_classify DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
-GRANT ALL PRIVILEGES ON django_classify.* TO 'user'@'%' IDENTIFIED BY 'secret_password' WITH GRANT OPTION;
 ```
-пароль
+
+Теперь у нас есть MySQL. Заходим в него под root-пользователем.
+```bash
+mysql -u root -p secret_password_mysql_root
+```
+Появится сообщение:
+```mysql
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 38
+Server version: 5.5.52-0+deb8u1 (Raspbian)
+
+Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql>
+```
+
+Создаем базу данных проекта __(django_classify)__:
+```sql
+CREATE DATABASE django_classify DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+```
+Затем, чтобы не работать с базой от супер-пользователя *(_root_)* создаем пользователя *(_user_)*:
+```sql
+GRANT ALL PRIVILEGES ON django_classify.* TO '_user_'@'localhost' IDENTIFIED BY 'secret_password_mysql_user' WITH GRANT OPTION;
+```
+Если по какой либо причине, нам понадобится удаленный доступ от имени этого пользователя (например, для работы с базой с помощью удаленного менеджера, на подобии dbForge Studio), то можно заменить _'localhost'_ на _'%'_. Так
+Работа с базой закончена. Можно выйти из MySQL `Ctrl+Z`.
+
+ДЛя того, чтобы к нему можно было подсоедениться удаленно, нам понадобиться изменить его конфигурационный файл. Открываем его на редактирование:
+
+```
+sudonano /etc/mysql/my.cnf
+```
+Находим строчку `bind-address = 127.0.0.1` и если хотим открыть доступ всем - комментим ее, если какому-то конкретному хосту - пишем его IP. Более сложные правила доступа следует настраивать через firewall. Сохраняем конфиг-файл `Ctrl+O`, `Ctrl+X`.
+
+Перезагружаем MySQL чтобы изменения конфигурационного файла подействовали.
+```
+sudo service mysql restart
+```
+
 
 ```
 source $HOME/c2g.cube2.ru/env/bin/activate
@@ -386,7 +427,7 @@ pip install MySQL-python
 pip install transliterate
 
 cd ~/c2g.cube2.ru/classifier-manager
-python manage.py migrate --fake-initial
+python manage.py migrate
 
 python manage.py check --deploy
 
