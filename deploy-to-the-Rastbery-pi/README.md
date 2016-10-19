@@ -450,14 +450,15 @@ server {
     error_log   /home/[user]/[адрес сайта]/logs/[адрес_сайта]_error.log;     # логи с ошибками
     client_max_body_size 32M; # максимальный объем файла для загрузки на сайт (max upload size)
 
-    location /media         { alias /home/[user]/[адрес сайта]/classifier-manager/media; }       # Расположение media-файлов Django
-    location /static        { alias /home/[user]/[адрес сайта]/classifier-manager/static; }      # Расположение static-файлов Django
-    location /robots.txt    { root /home/[user]/[адрес сайта]/classifier-manager/static; }       # Расположение robots.txt
-    location /favicon.ico   { root /home/[user]/[адрес сайта]/classifier-manager/static; }       # Расположение favicon.ico
+    location /media       { alias /home/[user]/[адрес сайта]/classifier-manager/media; }   # Расположение media-файлов Django
+    location /static      { alias /home/[user]/[адрес сайта]/classifier-manager/static; }  # Расположение static-файлов Django
+    location /robots.txt  { root /home/[user]/[адрес сайта]/classifier-manager/static; }   # Расположение robots.txt
+    location /favicon.ico { root /home/[user]/[адрес сайта]/classifier-manager/static; }   # Расположение favicon.ico
     location / {
-        uwsgi_pass  [адрес_сайта]_django;        # upstream обрабатывающий обращений  
-        include     uwsgi_params;               # конфигурационный файл uwsgi;
-        proxy_read_timeout     900;
+        uwsgi_pass           [адрес_сайта]_django;       # upstream обрабатывающий обращений  
+        include              uwsgi_params;               # конфигурационный файл uwsgi;
+        uwsgi_read_timeout   1800;     # некоторые запросы на Raspbery pi очень долго обрабатываются. Например, переиндексация.
+        uwsgi_send_timeout   200;      # на всякий случай время записи в сокет 
         }
         
     }
@@ -652,6 +653,13 @@ cat /home/[user]/[адрес сайта]/logs/[адрес_сайта]_error.log
 > 2016/10/16 01:36:34 [error] 26844#0: *7 upstream prematurely closed connection while reading response header from upstream, client: 192.168.1.1, server: [адрес сайта], request: "GET / HTTP/1.1", upstream: "uwsgi://unix:///home/[user]/[адрес сайта]/sock/[адрес_сайта].sock:", host: "[адрес сайта]"
 
 Означает, что ошибка на стороне python-скриптов нашего Django-приложения. Очевидно мы что-то сделали неправильно при установке виртуально окружения, развертывании проекта и его настройке и проверки. Надо перепрверить развертывание и возможно повторить его.
+
+#### Третья:
+> 2016/10/19 20:18:10 [error] 649#0: *9 upstream timed out (110: Connection timed out) while reading response header from upstream, client: 192.168.1.1, server: [адрес сайта], request: "POST /recheck HTTP/1.1", upstream: "uwsgi://unix:///home/eserg/[адрес сайта]/sock/[адрес_сайта].sock", host: "c2g.cube2.ru", referrer: "http://[адрес сайта]/"
+
+Означает, что значение `uwsgi_read_timeout` в нашем conf-файле nginx не достаточно. У меня на всякий случай вообще выставлено 3600 (й час), и это не предел. Подробнее про опции и настройки таймаутов nginx [читайте документацию](http://nginx.org/ru/docs/http/ngx_http_uwsgi_module.html#uwsgi_read_timeout).
+
+Хотя, возможно, просто ваш скрипт завис. 
 
 ### Устанавливаем Emperor-режим uWSGI
 
