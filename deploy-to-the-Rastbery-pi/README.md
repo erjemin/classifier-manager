@@ -647,7 +647,7 @@ sudo mkdir /etc/uwsgi
 sudo mkdir /etc/uwsgi/vassals
 ```
 
-Создаем в ней ссылку на mysite_uwsgi.ini:
+Создаем в ней симлинк на наш ini-файл mysite_uwsgi.ini:
 sudo ln -s /path/to/your/mysite/mysite_uwsgi.ini /etc/uwsgi/vassals/
 
 Запускаем uWSGI в режиме Emperor:
