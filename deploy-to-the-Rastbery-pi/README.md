@@ -12,7 +12,10 @@
 Первым делом нам понадобтся настроить пользователя, от имени которого мы будем работать и SSH-доступ для него.
 
 Наше пользователя надо включить в группу `www-data`, которую будет использовать web-сервер:
-`sudo usermod -g www-data [user]`
+`sudo usermod  [user] -g www-data`
+sudo usermod  eserg -g adm
+
+groups  [user]
 
 
 
@@ -552,10 +555,12 @@ vacuum          = true
 thunder-lock    = true
 max-requests    = 500
 
+# пользователь и группа пользователей от имени которых запускать uWSGI
+# указываем www-data: к этой группе относится nginz, и ранее мы включили в эту группу нашего [user]
 uid             = www-data
 gid             = www-data
 
-print           = -------------- Запустили uwsgi.ini для [адрес сайта] ----------------
+print           = ---------------- Запущен uWSGI для [адрес сайта] ----------------
 ```
 
 Запускаем uwsgi с нашим конфигом:
@@ -647,17 +652,27 @@ sudo mkdir /etc/uwsgi
 sudo mkdir /etc/uwsgi/vassals
 ```
 
-Создаем в ней симлинк на наш ini-файл mysite_uwsgi.ini:
-sudo ln -s /path/to/your/mysite/mysite_uwsgi.ini /etc/uwsgi/vassals/
+Создаем в ней симлинк на наш ini-файл uWSGI:
+```bash
+sudo ln -s /home/[user]/[адрес сайта]/conf/[адрес_сайта]_uwsgi.ini /etc/uwsgi/vassals/
+```
 
-Запускаем uWSGI в режиме Emperor:
-sudo uwsgi --emperor /etc/uwsgi/vassals --uid www-data --gid www-data
+Теперь, можно запустить uWSGI в режиме Emperor, указав с помощью ключа `--emperor` папку с симлимками на конфигурациолнные ini-файлы, и с помощью `--uid` и `--gid` пользователя и группу от имени которых должен работать uWSGI:
+```bash
+sudo uwsgi --emperor /etc/uwsgi/vassals --uid [user] --gid [user]
+```
 
-Опции:
-emperor: папка с конфигурациолнными файлами
-uid: id пользователя, от имени которого будет запущен процесс
-gid: id группы, от имени которой будет запущен процесс
+Чтобы  uWSGI запускался автоматически при каждой загрузке нашего Raspberri pi необходимо изменить файл `/etc/rc.local`. Открываем его на редактирование:
+```bash
+sudo nano /etc/rc.local
+```
 
+И перед самой последней строчкой `exit 0` вставляем в него команду запука uWSGI. Должно получиться примерно так:
+```bash
+/usr/local/bin/uwsgi --emperor /etc/uwsgi/vassals --uid [user] --gid [user]
+exit 0
+```
+Теперь можно перезагрузить наш сервер и убедиться, что uWSGI запустился и наш сайт `[адрес_сайта]` открывается в браузере.
 
 
 
