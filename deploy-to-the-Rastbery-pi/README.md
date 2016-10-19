@@ -457,6 +457,7 @@ server {
     location / {
         uwsgi_pass  [адрес_сайта]_django;        # upstream обрабатывающий обращений  
         include     uwsgi_params;               # конфигурационный файл uwsgi;
+        proxy_read_timeout     900;
         }
         
     }
@@ -515,7 +516,7 @@ sudo pip install uwsgi
 
 Теперь создаем файл конфигурации uwsgi для нашего проекта. В нем буду описано какое виртуальное окружение использует проект.
 ```bash
-nano /home/[user]/[адрес сайта]/conf/c2g_cube2_ru_uwsgi.ini
+nano $HOME/[адрес сайта]/conf/c2g_cube2_ru_uwsgi.ini
 ```
 Сожержание этого файла будет примерно таким
 ```
@@ -544,10 +545,11 @@ chmod-socket    = 666
 # очищать окружение от служебных файлов uwsgi по завершению
 vacuum          = true
 # количество секунд после которых подвисший процес будет перезапущен
-# harakiri      = 30
-# если значение harakiri установлено, то в логах uWSGI будет вываливаться предупреждение:
+№ Так как некоторе скрипты требуют изрядно времени (особенно полная переиндексация) то ставим значение побольще
+harakiri      = 900
+# В общес случае, при некотых значениях harakiri логах uWSGI может вываливаться предупреждение:
 # WARNING: you have enabled harakiri without post buffering. Slow upload could be rejected on post-unbuffered webservers
-# поэтому оставим harakiri закоментированным
+# можно оставить harakiri закоментированным, но нам нужно 900 и на него не ругается. Ругается на 30.
 
 # разрешаем многопоточность
 enable-threads  = true
@@ -577,7 +579,18 @@ cat /home/[user]/[адрес сайта]/logs/[адрес_сайта]_uwsgi.log
 
 В нем отображаются все сообщения инициализации uwsgi. Внизу находятся самые свежие записи. Записи выводятся в несколько строк, и каждая запись начинается со строки: `*** Starting uWSGI`. 
 
-В случае ошибок при запуске разбаемся и курим мануалы. Но если вы все сделали правильно в соотвеии с настоящей инструкцией, критических проблем возникнуть не должно. Тем не менее просмотреть логи uwsqi все равно полезно. Например, кроме предупреждения ***WARNING: you have enabled harakiri without post buffering. Slow upload could be rejected on post-unbuffered webservers*** о котором сказано в комментариях к `[адрес_сайта]_uwsgi.ini`  нас могут беспокоить сообщения: ***!!! no internal routing support, rebuild with pcre support !!!*** Это означает, что у нас установлен однопоточный uWSGI при многопоточном nginx и процессоре. Можно устанjвить в `[адрес_сайта]_uwsgi.ini` инстукцию использования однопоточности `enable-threads = false`, но лучше собрать многопоточный uWSGI с pcre.
+В случае ошибок при запуске разбаемся и курим мануалы.
+
+Ошибки моут быть вот такие:
+> * * * ** WARNING: you are running uWSGI as root !!! (use the --uid flag) ** * * *
+
+Значит мы запустили uWSGI от имени адменистратора. НА надо от имени текущего пользователя [user].
+
+
+
+> *** WARNING: you are running uWSGI without its master process manager ***
+
+Но если вы все сделали правильно в соответствии с настоящей инструкцией, критических проблем возникнуть не должно. Тем не менее просмотреть логи uwsqi все равно полезно. Например, кроме предупреждения ***WARNING: you have enabled harakiri without post buffering. Slow upload could be rejected on post-unbuffered webservers*** о котором сказано в комментариях к `[адрес_сайта]_uwsgi.ini`  нас могут беспокоить сообщения: ***!!! no internal routing support, rebuild with pcre support !!!*** Это означает, что у нас установлен однопоточный uWSGI при многопоточном nginx и процессоре. Можно устанjвить в `[адрес_сайта]_uwsgi.ini` инстукцию использования однопоточности `enable-threads = false`, но лучше собрать многопоточный uWSGI с pcre.
 
 Для этого нам понадобятся пакеты разработчиков.
 ```bash
