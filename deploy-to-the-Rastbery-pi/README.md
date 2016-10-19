@@ -657,7 +657,7 @@ cat /home/[user]/[адрес сайта]/logs/[адрес_сайта]_error.log
 #### Третья:
 > 2016/10/19 20:18:10 [error] 649#0: *9 upstream timed out (110: Connection timed out) while reading response header from upstream, client: 192.168.1.1, server: [адрес сайта], request: "POST /recheck HTTP/1.1", upstream: "uwsgi://unix:///home/eserg/[адрес сайта]/sock/[адрес_сайта].sock", host: "c2g.cube2.ru", referrer: "http://[адрес сайта]/"
 
-Означает, что значение `uwsgi_read_timeout` в нашем conf-файле nginx не достаточно. У меня на всякий случай вообще выставлено 3600 (й час), и это не предел. Подробнее про опции и настройки таймаутов nginx [читайте документацию](http://nginx.org/ru/docs/http/ngx_http_uwsgi_module.html#uwsgi_read_timeout).
+Означает, что или значение `uwsgi_read_timeout` в нашем conf-файле nginx не достаточно, или параметр `harakiri` в ini-файле uWSGI маловат. У меня на всякий случай вообще выставлено в обоих случаях 3600 (один час), и это не предел. Подробнее про опции и настройки таймаутов nginx [читайте документацию](http://nginx.org/ru/docs/http/ngx_http_uwsgi_module.html#uwsgi_read_timeout).
 
 Хотя, возможно, просто ваш скрипт завис. 
 
