@@ -122,51 +122,53 @@ git clone https://github.com/erjemin/classifier-manager
 sudo apt-get install python-virtualenv
 ```
 
-Теперь развернем виртуальное окружение. Оно создаст каталог, в котором будут находится файлы виртуального окружение (версия Python, установщик пакетов pip, wheel, setuptools а также все ненобходимые нам пакеты, батейки, свистелки и хрюкалки нашего проекта).
+
+Теперь развернем виртуальное окружение. Оно создаст каталог, в котором будут находится файлы виртуального окружение (версия Python, установщик пакетов pip, wheel, setuptools а также все необходимые нам пакеты, батарейки, свистелки и хрюкалки нашего проекта).
 ```bash
 virtualenv $HOME/[адрес сайта]/env
 ```
 
-Для накатывания пакетов именно в виртуальное окружение его надо активировать и сделать его локальной (текущей) средой окружения. 
+Для накатывания пакетов именно в виртуальное окружение его надо активировать и сделать локальной (текущей) средой окружения. 
 ```bash
 source $HOME/[адрес сайта]/env/bin/activate
 ```
 
-Теперь все наши пакеты будут устанавливаться в виртуальное окружение и попадать в папку `$HOME/[адрес сайта]/env/bin/activate`. Уснавналиваем необходиму нам версию фреймфорка Django
+Теперь все наши пакеты будут устанавливаться в виртуальное окружение и попадать в папку `$HOME/[адрес сайта]/env/`. Устанавливаем необходимую нам версию фреймворка Django
 ```
 pip install Django==1.9.10
 ```
 
-Проверяем, что Django установилась правильно и нужной версии. Входим:
+Проверяем, что Django установилась правильно и нужной версии. Вводим:
 ```
 django-admin version
 ```
 
-Если виртуальное окружение настроено правильно, и Django установлдено корректно, выведется строка с вывести текущей версией Django:
+Если виртуальное окружение настроено и активировано правильно, а Django установлено корректно, выведется строка с текущей версией Django:
 > 1.9.10
 
-Продолжаем установку неодходимых модулей -- коннекторов mySQL и библиотеку транслитерации: 
+Продолжаем установку необходимых модулей -- коннекторов mySQL и библиотеку транслитерации: 
 ```bash
 pip install mysql-connector
 pip install mysqlclient
 pip install MySQL-python
 pip install transliterate
 ```
+
 Возможна ошибка по причине нехватки dev-модулей для сборки многопотоковых коннекторов. Устанавливаем их с помощью `sudo apt-get install python-dev libmysqlclient-dev` и повторяем предыдущую операцию.
 
-Наш проект подготовлен. Можем созать миграцию, которая содаст все нобходимые таблицы в наше базе дынных. Но перед тем как ее выплнить нам надо испровить настроки нашего проекта `settings.py` и указать в ней настройки нашей базы данных:
+Наш проект подготовлен. Можем создать миграцию, которая создаст все необходимые таблицы в наше базе дынных. Но перед тем как ее выполнить нам надо исправить настройки проекта `settings.py` и указать в ней настройки наших папок и логинов в базу данных:
 ```
 nano $HOME/[адрес сайта]/classifier-manager/classifier/settings.py
 ```
 
-Находим в ней сроки для настройки почты и меняем настроки `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER` и `EMAIL_HOST_PASSWORD` для работы почты:
+Находим в ней строки для настройки почты и меняем значения `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER` и `EMAIL_HOST_PASSWORD` для работы email:
 ```Python
 EMAIL_HOST  = 'mail.server.ru'                 # хост почтового SMTP-сервреа
 EMAIL_PORT  = 587                              # порт  почтового SMTP-сервреа
 EMAIL_HOST_USER = '[user]@server.ru'           # логин (email) для входа на постовый сервер
 EMAIL_HOST_PASSWORD = 'password_to_mail'       # пароль для входа на постовый серве
 ```
-Аналогичные изменения вносим для настроек рабочих каталогов для файлов статики и базы данных. Для статики меняем параметры `STATIC_ROOT`, `STATIC_BASE_PATH` и `MEDIA_ROOT` указывая вместо **`[user]`** имя нашего пользователя, а вместо **`[адрес сайта]`** имя папки, которая, как иы договорились ранее, совпадаем с адресом сайта. Для базы данных меняем параметры `'USER'` и `'PASSWORD'`:
+Аналогичные изменения вносим для настроек рабочих каталогов файлов статики, медия и базы данных. Для файлов меняем параметры `STATIC_ROOT`, `STATIC_BASE_PATH` и `MEDIA_ROOT` указывая вместо **`[user]`** имя нашего пользователя, а вместо **`[адрес сайта]`** имя папки, которая, как мы договорились ранее, совпадает с адресом сайта. Для базы данных меняем параметры `'USER'` и `'PASSWORD'`:
 ```Python
 if (socket.gethostname() == 'raspberrypi'):
     # НАЗНАЧЕНИЕ ДИРЕКТОРИЙ ДЛЯ ПРОДАКШН-СЕРВЕРА (RASPBERRY PI 3) ----
@@ -176,33 +178,37 @@ if (socket.gethostname() == 'raspberrypi'):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'HOST': 'localhost',                         # хост для соедиения с базой данных
+            'HOST': 'localhost',                         # хост для соединения с базой данных
             'PORT': '3306',                              # порт для соединения с базой данных
             'NAME': 'django_classify',                   # имя базы данных
-            'USER': '[user]',                            # пользователь базы жанных 
+            'USER': '[user]',                            # пользователь базы данных 
             'PASSWORD': 'secret_password_mysql_user',    # пароль пользователя базы данных
             'OPTIONS': { 'autocommit': True, }
         }
     }
 ```
 
-Сохраняем файл `Ctrl+O` и `Enter`, а затем выходим из редактора `Ctrl+X`. Переходим в папку проета:
+Сохраняем файл `Ctrl+O` и `Enter`, а затем выходим из редактора `Ctrl+X`. Переходим в папку проекта:
 ```bash
 cd ~/[адрес сайта]/classifier-manager
 ```
-и выполнчем миграцию:
+и выполняем миграцию:
 ```bash
 python manage.py migrate
 ```
 
-Django сообщит нам о создании всех неоходимых таблиц. Теперь можем проверить хорошо ли у нас с безопасностью:
+Django сообщит нам о создании всех необходимых таблиц. Теперь можем проверить хорошо ли у нас с безопасностью:
 ```bash
 python manage.py check --deploy
 ```
-Django сообщит какие настройки в `settings.py` нам еще необходимя для ее повышения. Собщение:
-> ?: (security.W001) You do not have 'django.middleware.security.SecurityMiddleware' in your MIDDLEWARE_CLASSES so the SECURE_HSTS_SECONDS, SECURE_CONTENT_TYPE_NOSNIFF, SECURE_BROWSER_XSS_FILTER, and SECURE_SSL_REDIRECT settings will have no effect.
 
-Можем проигнорировать, так как доступа по https-протоколу (с SSL-шифрованием) наш проект поддерживать не планирует.
+Django сообщит какие настройки в `settings.py` нам еще необходимы для ее повышения. В нашем случае должны выскочить собщения:
+> ?: (security.W001) You do not have 'django.middleware.security.SecurityMiddleware' in your MIDDLEWARE_CLASSES so the SECURE_HSTS_SECONDS, SECURE_CONTENT_TYPE_NOSNIFF, SECURE_BROWSER_XSS_FILTER, and SECURE_SSL_REDIRECT settings will have no effect.
+> ?: (security.W012) SESSION_COOKIE_SECURE is not set to True. Using a secure-only session cookie makes it more difficult for network traffic sniffers to hijack user sessions.
+> ?: (security.W016) You have 'django.middleware.csrf.CsrfViewMiddleware' in your MIDDLEWARE_CLASSES, but you have not set CSRF_COOKIE_SECURE to True. Using a secure-only CSRF cookie makes it more difficult for network traffic sniffers to steal the CSRF token.
+> ?: (security.W017) You have 'django.middleware.csrf.CsrfViewMiddleware' in your MIDDLEWARE_CLASSES, but you have not set CSRF_COOKIE_HTTPONLY to True. Using an HttpOnly CSRF cookie makes it more difficult for cross-site scripting attacks to steal the CSRF token.
+
+Можем их проигнорировать, так как доступа по https-протоколу (с SSL-шифрованием) наш проект поддерживать не планирует, а куки для дополнительной защиты токенов проект не использует.
 
 Теперь создаём суперпользователя Django. С его помощью мы сможем входить в административную пнаель Django:
 ```bash
