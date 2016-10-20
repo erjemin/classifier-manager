@@ -204,8 +204,11 @@ python manage.py check --deploy
 
 Django сообщит какие настройки в `settings.py` нам еще необходимы для ее повышения. В нашем случае должны выскочить собщения:
 > ?: (security.W001) You do not have 'django.middleware.security.SecurityMiddleware' in your MIDDLEWARE_CLASSES so the SECURE_HSTS_SECONDS, SECURE_CONTENT_TYPE_NOSNIFF, SECURE_BROWSER_XSS_FILTER, and SECURE_SSL_REDIRECT settings will have no effect.
+
 > ?: (security.W012) SESSION_COOKIE_SECURE is not set to True. Using a secure-only session cookie makes it more difficult for network traffic sniffers to hijack user sessions.
+
 > ?: (security.W016) You have 'django.middleware.csrf.CsrfViewMiddleware' in your MIDDLEWARE_CLASSES, but you have not set CSRF_COOKIE_SECURE to True. Using a secure-only CSRF cookie makes it more difficult for network traffic sniffers to steal the CSRF token.
+
 > ?: (security.W017) You have 'django.middleware.csrf.CsrfViewMiddleware' in your MIDDLEWARE_CLASSES, but you have not set CSRF_COOKIE_HTTPONLY to True. Using an HttpOnly CSRF cookie makes it more difficult for cross-site scripting attacks to steal the CSRF token.
 
 Можем их проигнорировать, так как доступа по https-протоколу (с SSL-шифрованием) наш проект поддерживать не планирует, а куки для дополнительной защиты токенов проект не использует.
