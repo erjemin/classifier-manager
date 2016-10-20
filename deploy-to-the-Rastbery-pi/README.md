@@ -547,13 +547,13 @@ daemonize       = /home/[user]/[адрес сайта]/logs/[адрес_сайт
 
 # ЗАГАДОЧНЫЕ НАСТРОЙКИ, ПО ИДЕЕ ОНИ НУЖНЫ, НО И БЕЗ НИХ ВСЁ РАБОТАЕТ
 # расположение wsgi.py
-wsgi-file       = /home/eserg/c2g.cube2.ru/classifier-manager/classifier/wsgi.py
+wsgi-file       = /home/[user]/[адрес сайта]/classifier-manager/classifier/wsgi.py
 # расположение виртуального окружения (как оно работает если этот параметр не указан, не ясно)
-virtualenv      = /home/eserg/c2g.cube2.ru/env
+virtualenv      = /home/[user]/[адрес сайта]/env
 # имя файла при изменении которого происходит авторестарт приложения
 # (когда этого параметра нет, то гичего не авторестартится, но с ним все рестартится.
 # Cтоит изменить любой Python-исходник проекта, как изменения сразу вступают в силу.
-touch-reload    = /home/eserg/c2g.cube2.ru/logs/c2g_cube2_ru_reload.log
+touch-reload    = /home/[user]/[адрес сайта]/logs/[адрес_сайта]_reload.log
 
 #  НАСТРОЙКИ ОБЩИЕ
 # быть master-процессом
