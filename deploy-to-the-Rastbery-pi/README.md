@@ -1,4 +1,4 @@
-Развертывание системы управления деревом классификатора: Raspberry pi, Raspbian Linux (Debian), виртуальное окружение, Python и Django, nginx, uWSGI
+Развертывание системы управления деревом классификатора: Raspberry pi → Raspbian Linux (Debian) → virtualenv → Python/Django → nginx → uWSGI
 ==============================
 
 В моем случае разворачиваю проект под Raspberry pi 3 и операционной системой Raspbian GNU/Linux 8.0, которая представляет из себя разновидность Debian (jessie, Linux version 4.4.21-v7+) собранной специально под Raspberry pi. Развертывание под другие разновидности Debian (Ubuntu, Runtu, gNewSense и пр.) не должно отличаться.
