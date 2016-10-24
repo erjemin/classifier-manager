@@ -11,8 +11,9 @@
 
 Для устанвоки системы Ubuntu Server 16.04 LTE действем в порядке указанном [по ссылке на официальном сайте Ubuntu] (https://wiki.ubuntu.com/ARM/RaspberryPi). В целом она одинакова для любых систем под Rasperry:
 
-+ Скачиваем img-образ microSD-карточки, которая станет «диском» нашего Raspberry pi. Обычно он упакован xz-архиватором, и если скачиваем под Windows то могут возникнуть проблемы, т.к. формат им не поддерживается. Распаковать можно утилитой 7Z (Seven Zip) или скачать родной xz-распаковщик [на сайте разработчика The Tukaani Project](http://tukaani.org/xz/).
-+ Записываем img-образ на саму microSD-карточку. Под linux есть встроенные команды `dd`, в под Windows на сайте для записи образа скачиваем и используем программку Win32DiskImager ([Берем с сайта разработчика  Sourceforge Project](http://sourceforge.net/projects/win32diskimager/)).
++ Скачиваем img-образ microSD-карточки, которая станет «диском» нашего Raspberry pi. Обычно он упакован xz-архиватором, и если скачиваем под Windows то могут возникнуть проблемы, т.к. формат им не поддерживается. Распаковать можно утилитой 7Z (Seven Zip) или скачать родной xz-распаковщик [на сайте разработчика Tukaani Project](http://tukaani.org/xz/).
+
++ Записываем img-образ на саму microSD-карточку. Под linux есть встроенные команды `dd`, в под Windows на сайте для записи образа скачиваем и используем программку Win32DiskImager ([берём с сайта разработчика Sourceforge Project](http://sourceforge.net/projects/win32diskimager/)).
 
 
 Login username is "ubuntu", password is "ubuntu". You will be asked to change the password on first login.
