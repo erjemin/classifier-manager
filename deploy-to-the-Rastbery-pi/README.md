@@ -667,7 +667,7 @@ server {
 
 Чтобы nginx подключил наш новый файл конфигурации сайта нужно добавьте ссылку на него в каталог `/etc/nginx/sites-enabled/`:
 ```bash
-sudo ln -s $HOME/[адрес сайта]/[адрес_сайта]_nginx.conf /etc/nginx/sites-enabled/
+sudo ln -s $HOME/[адрес сайта]/conf/[адрес_сайта]_nginx.conf /etc/nginx/sites-enabled/
 ```
 
 Теперь нужно перезагрузить nginx
@@ -683,18 +683,20 @@ nginx работает. То что все в нем корректно пров
 
 ```
 ● nginx.service - A high performance web server and a reverse proxy server
-   Loaded: loaded (/lib/systemd/system/nginx.service; enabled)
-   Active: active (running) since Вс 2016-10-16 01:04:21 MSK; 5min ago
-  Process: 26642 ExecStop=/sbin/start-stop-daemon --quiet --stop --retry QUIT/5 --pidfile /run/nginx.pid (code=exited, status=0/SUCCESS)
-  Process: 26648 ExecStart=/usr/sbin/nginx -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
-  Process: 26645 ExecStartPre=/usr/sbin/nginx -t -q -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
- Main PID: 26650 (nginx)
-   CGroup: /system.slice/nginx.service
-           ├─26650 nginx: master process /usr/sbin/nginx -g daemon on; master_process on;
-           ├─26651 nginx: worker process
-           ├─26652 nginx: worker process
-           ├─26653 nginx: worker process
-           └─26654 nginx: worker process
+   Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
+   Active: active (running) since Чт 2016-10-27 19:41:19 MSK; 4min 27s ago
+  Process: 20175 ExecStop=/sbin/start-stop-daemon --quiet --stop --retry QUIT/5 --pidfile /run/nginx.pid (code=exited, status=0/SUCCESS)
+  Process: 20187 ExecStart=/usr/sbin/nginx -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+  Process: 20182 ExecStartPre=/usr/sbin/nginx -t -q -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+ Main PID: 20190 (nginx)
+   Memory: 2.3M
+      CPU: 265ms
+      CGroup: /system.slice/nginx.service
+           ├─20190 nginx: master process /usr/sbin/nginx -g daemon on; master_process on
+           ├─20191 nginx: worker process
+           ├─20192 nginx: worker process
+           ├─20193 nginx: worker process
+           └─20194 nginx: worker process
 ```
 
 ---------------------
@@ -708,12 +710,12 @@ sudo apt-get install python-dev
 
 В nginx (как впрочем и в други веб-серверах) обмен данными с python-приложениями происходит через WSGI (Web Server Gateway Interface). В его основе лежат сокеты (нечто вроде общего блока памяти к которому может обращаться и веб-сервер и приложение) через которые пробрасыватся данные между приложением и сервером. Существуем множество сервисов WSGI -- gunicorn, passenger_wsgi, flup, FastCGI (вот [далеко не полный список WSGI] (http://wsgi.readthedocs.io/en/latest/servers.html) -- и для нашего сервера мы выберем uWSGI. Он достаточно компактен, шустрый и не прожорливый. Для миниатюрного Paspbery pi -- самое то. Можно установить uWSGI в виртуальное окружение, но если мы хотим чтобы и другие Python-сайты нашего сервре могли его использоватьна, то лучше производить установку на системном уровне:
 ```bash
-sudo pip install uwsgi
+sudo apt install uwsgi
 ```
 
 Теперь создаем файл конфигурации uwsgi для нашего проекта. В нем буду описано какое виртуальное окружение использует проект.
 ```bash
-nano $HOME/[адрес сайта]/conf/c2g_cube2_ru_uwsgi.ini
+nano $HOME/[адрес сайта]/conf/[адрес сайта]_uwsgi.ini
 ```
 Сожержание этого файла будет примерно таким
 ```
@@ -842,7 +844,7 @@ sudo pip install uwsgi -I
 
 Еще раз запускаем uWSGI с нашим конфигом:
 ```bash
-uwsgi --ini /home/[user]/[адрес сайта]/conf/[адрес_сайта]_uwsgi.ini
+sudo uwsgi --ini /home/[user]/[адрес сайта]/conf/[адрес_сайта]_uwsgi.ini
 ```
 Открываем в браузере сайт _http://[адрес сайта]_. И если он открывается с ошибкой 502, то смотрим логошибок nginx:
 ```bash
