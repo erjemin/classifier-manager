@@ -223,7 +223,7 @@ CREATE DATABASE django_classify DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_
 ```
 Затем, чтобы наше Django-приложение не работало с базой под аккаунтом  супер-пользователя **root**, создаем нового пользователя базы **[user]** с паролем «_secret_password_mysql_user_»:
 ```sql
-GRANT ALL PRIVILEGES ON django_classify.* TO '[user]'@'localhost' IDENTIFIED BY 'secret_password_mysql_user' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON django_classify.* TO '[user]'@'localhost' IDENTIFIED BY 'secret_password_mysql_user';
 ```
 
 Если по какой-либо причине, нам понадобится удаленный доступ от имени этого пользователя (например, для работы с базой посредством удаленного клиент-менеджера, на подобии dbForge Studio или MySQL Workbench), то можно заменить `'localhost'` на `'%'`. Если захотим разрешить этому пользователю доступ и ко всем jcnfkmysv базам в нашем MySQL-сервере, то необходимо заменить `PRIVILEGES ON django_classify.*` на  `PRIVILEGES ON *.*`.
@@ -307,13 +307,12 @@ django-admin version
 Продолжаем установку необходимых модулей -- коннекторов mySQL, библиотеку транслитерации и для работы с **xslx**-файлами Microsoft Ecxel 2010: 
 ```bash
 pip install mysql-connector
-pip install mysqlclient
 pip install MySQL-python
 pip install transliterate
 pip install openpyxl
 ```
 
-Возможна ошибка по причине нехватки dev-модулей для сборки многопотоковых коннекторов. Устанавливаем их с помощью `sudo apt-get install python-dev libmysqlclient-dev` и повторяем предыдущую операцию.
+Возможна ошибка по причине нехватки dev-модулей для сборки многопотоковых коннекторов. Устанавливаем их с помощью `sudo apt-get install python-dev libmysqlclient-dev build-dep python-mysqldb` и повторяем предыдущую операцию.
 
 Наш проект подготовлен. Можем создать миграцию, которая создаст все необходимые таблицы в наше базе дынных. Но перед тем как ее выполнить нам надо исправить настройки проекта `settings.py` и указать в ней настройки наших папок и логинов в базу данных:
 ```
